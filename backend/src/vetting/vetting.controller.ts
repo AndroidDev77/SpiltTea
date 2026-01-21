@@ -21,7 +21,7 @@ export class VettingController {
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Request() req: any, @Body() createVettingRequestDto: CreateVettingRequestDto) {
-    return this.vettingService.create(req.user.sub, createVettingRequestDto);
+    return this.vettingService.create(req.user.userId, createVettingRequestDto);
   }
 
   @Get()

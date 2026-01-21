@@ -9,7 +9,7 @@ export class UsersController {
 
   @Get('profile')
   async getProfile(@Request() req: any) {
-    return this.usersService.findById(req.user.sub);
+    return this.usersService.findById(req.user.userId);
   }
 
   @Patch('profile')
@@ -23,7 +23,7 @@ export class UsersController {
       profileImageUrl?: string;
     },
   ) {
-    return this.usersService.updateProfile(req.user.sub, updateData);
+    return this.usersService.updateProfile(req.user.userId, updateData);
   }
 
   @Get(':username')

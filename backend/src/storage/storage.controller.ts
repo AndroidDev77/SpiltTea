@@ -13,7 +13,7 @@ export class StorageController {
     @Body('filename') filename: string,
     @Body('contentType') contentType: string,
   ) {
-    const key = this.storageService.generateFileKey(req.user.sub, filename);
+    const key = this.storageService.generateFileKey(req.user.userId, filename);
     const uploadUrl = await this.storageService.getUploadPresignedUrl(key, contentType);
     const publicUrl = this.storageService.getPublicUrl(key);
 

@@ -23,7 +23,7 @@ export class PostsController {
   @Post()
   @UseGuards(JwtAuthGuard)
   create(@Request() req: any, @Body() createPostDto: CreatePostDto) {
-    return this.postsService.create(req.user.sub, createPostDto);
+    return this.postsService.create(req.user.userId, createPostDto);
   }
 
   @Get()
@@ -53,18 +53,18 @@ export class PostsController {
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
   update(@Param('id') id: string, @Request() req: any, @Body() updatePostDto: UpdatePostDto) {
-    return this.postsService.update(id, req.user.sub, updatePostDto);
+    return this.postsService.update(id, req.user.userId, updatePostDto);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   remove(@Param('id') id: string, @Request() req: any) {
-    return this.postsService.remove(id, req.user.sub);
+    return this.postsService.remove(id, req.user.userId);
   }
 
   @Post(':id/like')
   @UseGuards(JwtAuthGuard)
   likePost(@Param('id') id: string, @Request() req: any) {
-    return this.postsService.likePost(id, req.user.sub);
+    return this.postsService.likePost(id, req.user.userId);
   }
 }
