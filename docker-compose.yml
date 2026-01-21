@@ -5,9 +5,9 @@ services:
     image: postgres:15-alpine
     container_name: spilttea-postgres
     environment:
-      POSTGRES_USER: spilttea
-      POSTGRES_PASSWORD: spilttea_password
-      POSTGRES_DB: spilttea
+      POSTGRES_USER: ${POSTGRES_USER:-spilttea}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-spilttea_password}
+      POSTGRES_DB: ${POSTGRES_DB:-spilttea}
     ports:
       - "5432:5432"
     volumes:
@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     container_name: spilttea-backend
     environment:
-      DATABASE_URL: postgresql://spilttea:spilttea_password@postgres:5432/spilttea?schema=public
+      DATABASE_URL: postgresql://${POSTGRES_USER:-spilttea}:${POSTGRES_PASSWORD:-spilttea_password}@postgres:5432/${POSTGRES_DB:-spilttea}?schema=public
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-super-secret-jwt-key-change-in-production}
       PORT: 3001
