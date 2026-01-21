@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { Layout } from './components/layout/Layout';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
+import { AdminRoute } from './components/layout/AdminRoute';
 
 // Auth Pages
 import { Login } from './pages/auth/Login';
@@ -18,6 +19,7 @@ import { CreatePost } from './pages/posts/CreatePost';
 import { VettingRequests } from './pages/vetting/VettingRequests';
 import { SearchPage } from './pages/search/SearchPage';
 import { UserProfile } from './pages/profile/UserProfile';
+import { PersonProfile } from './pages/persons/PersonProfile';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -78,9 +80,9 @@ function App() {
                 <Route
                   path="/vetting"
                   element={
-                    <ProtectedRoute>
+                    <AdminRoute>
                       <VettingRequests />
-                    </ProtectedRoute>
+                    </AdminRoute>
                   }
                 />
                 <Route
@@ -96,6 +98,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <UserProfile />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/persons/:id"
+                  element={
+                    <ProtectedRoute>
+                      <PersonProfile />
                     </ProtectedRoute>
                   }
                 />

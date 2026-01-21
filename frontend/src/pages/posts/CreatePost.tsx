@@ -12,10 +12,12 @@ import {
   Field,
   MessageBar,
   MessageBarBody,
+  Select,
 } from '@fluentui/react-components';
 import { ArrowLeft24Regular } from '@fluentui/react-icons';
 import { useCreatePost } from '../../hooks/usePosts';
-import type { CreatePostRequest } from '../../types';
+import { PersonSelector } from '../../components/persons/PersonSelector';
+import type { CreatePostRequest, Person, PostType } from '../../types';
 
 const useStyles = makeStyles({
   container: {
@@ -54,9 +56,12 @@ export const CreatePost: React.FC = () => {
   const navigate = useNavigate();
   const createPost = useCreatePost();
   const [error, setError] = useState<string>('');
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
   const [formData, setFormData] = useState<CreatePostRequest>({
+    type: 'EXPERIENCE',
     title: '',
     content: '',
+    personId: undefined,
     category: '',
     tags: [],
   });
@@ -66,8 +71,16 @@ export const CreatePost: React.FC = () => {
     e.preventDefault();
     setError('');
 
+    if (!selectedPerson) {
+      setError('Please select a person this review is about');
+      return;
+    }
+
     try {
-      const post = await createPost.mutateAsync(formData);
+      const post = await createPost.mutateAsync({
+        ...formData,
+        personId: selectedPerson.id,
+      });
       navigate(`/posts/${post.id}`);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to create post');
@@ -78,6 +91,14 @@ export const CreatePost: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleTypeChange = (_: any, data: { value: string }) => {
+    setFormData((prev) => ({ ...prev, type: data.value as PostType }));
+  };
+
+  const handlePersonChange = (person: Person | null) => {
+    setSelectedPerson(person);
   };
 
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,6 +132,20 @@ export const CreatePost: React.FC = () => {
         )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          <Field label="Post Type" required>
+            <Select value={formData.type} onChange={handleTypeChange}>
+              <option value="EXPERIENCE">Experience / Review</option>
+              <option value="WARNING">Warning</option>
+              <option value="VETTING_REQUEST">Vetting Request</option>
+            </Select>
+          </Field>
+
+          <PersonSelector
+            label="Who is this about?"
+            value={selectedPerson}
+            onChange={handlePersonChange}
+          />
+
           <Field label="Title" required>
             <Input
               value={formData.title}
@@ -124,7 +159,7 @@ export const CreatePost: React.FC = () => {
             <Input
               value={formData.category}
               onChange={handleChange('category')}
-              placeholder="e.g., Technology, Politics, Entertainment"
+              placeholder="e.g., Dating, Professional, Social"
               required
             />
           </Field>
@@ -133,7 +168,7 @@ export const CreatePost: React.FC = () => {
             <Input
               value={tagsInput}
               onChange={handleTagsChange}
-              placeholder="e.g., breaking, verified, discussion"
+              placeholder="e.g., verified, recent, honest"
             />
           </Field>
 
@@ -141,7 +176,7 @@ export const CreatePost: React.FC = () => {
             <Textarea
               value={formData.content}
               onChange={handleChange('content')}
-              placeholder="Share your story..."
+              placeholder="Share your experience..."
               rows={10}
               required
             />

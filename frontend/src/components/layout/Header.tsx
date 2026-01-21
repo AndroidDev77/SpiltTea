@@ -88,11 +88,13 @@ export const Header: React.FC = () => {
               Posts
             </Button>
           </Link>
-          <Link to="/vetting" className={styles.navLink}>
-            <Button appearance="subtle" icon={<CheckmarkCircle24Regular />}>
-              Vetting
-            </Button>
-          </Link>
+          {user?.role === 'ADMIN' && (
+            <Link to="/vetting" className={styles.navLink}>
+              <Button appearance="subtle" icon={<CheckmarkCircle24Regular />}>
+                Vetting
+              </Button>
+            </Link>
+          )}
           <Link to="/search" className={styles.navLink}>
             <Button appearance="subtle" icon={<Search24Regular />}>
               Search

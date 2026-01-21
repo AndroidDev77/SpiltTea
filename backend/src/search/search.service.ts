@@ -155,18 +155,91 @@ export class SearchService {
     };
   }
 
+  async searchPersons(query: string, skip = 0, take = 20) {
+    const [persons, total] = await Promise.all([
+      this.prisma.person.findMany({
+        skip,
+        take,
+        where: {
+          OR: [
+            {
+              name: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+            {
+              aliases: {
+                has: query,
+              },
+            },
+            {
+              city: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        },
+        include: {
+          _count: {
+            select: {
+              posts: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.person.count({
+        where: {
+          OR: [
+            {
+              name: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+            {
+              aliases: {
+                has: query,
+              },
+            },
+            {
+              city: {
+                contains: query,
+                mode: 'insensitive',
+              },
+            },
+          ],
+        },
+      }),
+    ]);
+
+    return {
+      persons,
+      total,
+      page: Math.floor(skip / take) + 1,
+      totalPages: Math.ceil(total / take),
+    };
+  }
+
   async searchAll(query: string, _skip = 0, take = 10) {
-    const [posts, users] = await Promise.all([
+    const [posts, users, persons] = await Promise.all([
       this.searchPosts(query, 0, take),
       this.searchUsers(query, 0, take),
+      this.searchPersons(query, 0, take),
     ]);
 
     return {
       posts: posts.posts,
       users: users.users,
+      persons: persons.persons,
       totals: {
         posts: posts.total,
         users: users.total,
+        persons: persons.total,
       },
     };
   }

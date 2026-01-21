@@ -1,9 +1,12 @@
 // User Types
+export type UserRole = 'USER' | 'MODERATOR' | 'ADMIN';
+
 export interface User {
   id: string;
   username: string;
   email: string;
   emailVerified: boolean;
+  role: UserRole;
   trust: number;
   bio?: string;
   createdAt: string;
@@ -31,13 +34,70 @@ export interface VerifyEmailRequest {
   token: string;
 }
 
+// Person Types
+export type Gender = 'MALE' | 'FEMALE' | 'NON_BINARY' | 'OTHER' | 'PREFER_NOT_TO_SAY';
+
+export interface Person {
+  id: string;
+  name: string;
+  aliases: string[];
+  approximateAge?: number;
+  gender?: Gender;
+  city?: string;
+  state?: string;
+  country?: string;
+  profileImageUrl?: string;
+  isVerified: boolean;
+  createdAt: string;
+  updatedAt: string;
+  _count?: {
+    posts: number;
+  };
+}
+
+export interface CreatePersonRequest {
+  name: string;
+  aliases?: string[];
+  approximateAge?: number;
+  gender?: Gender;
+  city?: string;
+  state?: string;
+  country?: string;
+  profileImageUrl?: string;
+}
+
+export interface UpdatePersonRequest {
+  name?: string;
+  aliases?: string[];
+  approximateAge?: number;
+  gender?: Gender;
+  city?: string;
+  state?: string;
+  country?: string;
+  profileImageUrl?: string;
+  isVerified?: boolean;
+}
+
+export interface PersonWithPosts {
+  person: Person;
+  posts: Post[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
 // Post Types
+export type PostType = 'EXPERIENCE' | 'VETTING_REQUEST' | 'WARNING';
+
 export interface Post {
   id: string;
   authorId: string;
   author?: User;
+  type: PostType;
   title: string;
   content: string;
+  personId?: string;
+  person?: Person;
   category: string;
   tags: string[];
   viewCount: number;
@@ -47,11 +107,17 @@ export interface Post {
   status: 'active' | 'archived' | 'flagged';
   createdAt: string;
   updatedAt: string;
+  _count?: {
+    likes: number;
+    comments: number;
+  };
 }
 
 export interface CreatePostRequest {
+  type: PostType;
   title: string;
   content: string;
+  personId?: string;
   category: string;
   tags: string[];
 }

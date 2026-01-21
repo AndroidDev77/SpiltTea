@@ -4,6 +4,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { PostsModule } from './posts/posts.module';
+import { PersonsModule } from './persons/persons.module';
 import { VettingModule } from './vetting/vetting.module';
 import { StorageModule } from './storage/storage.module';
 import { SearchModule } from './search/search.module';
@@ -27,6 +28,7 @@ import { RedisModule } from './common/redis/redis.module';
     AuthModule,
     UsersModule,
     PostsModule,
+    PersonsModule,
     VettingModule,
     StorageModule,
     SearchModule,

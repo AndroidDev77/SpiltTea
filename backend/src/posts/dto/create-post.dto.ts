@@ -6,6 +6,7 @@ import {
   IsInt,
   IsBoolean,
   IsArray,
+  IsUUID,
 } from 'class-validator';
 import { PostType, Gender } from '@prisma/client';
 
@@ -22,6 +23,11 @@ export class CreatePostDto {
   @IsNotEmpty()
   content: string;
 
+  @IsUUID()
+  @IsOptional()
+  personId?: string;
+
+  // Legacy fields (deprecated - use personId)
   @IsString()
   @IsOptional()
   personName?: string;

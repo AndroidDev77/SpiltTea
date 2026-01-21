@@ -45,25 +45,25 @@ model User {
   phoneNumber       String?   @unique
   phoneVerified     Boolean   @default(false)
   phoneOtpSecret    String?
-  
+
   firstName         String
   lastName          String
   username          String    @unique
   bio               String?
   dateOfBirth       DateTime
   gender            Gender
-  
+
   role              UserRole  @default(USER)
   isActive          Boolean   @default(true)
   isBanned          Boolean   @default(false)
   banReason         String?
-  
+
   profileImageUrl   String?
-  
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   lastLoginAt       DateTime?
-  
+
   // Relations
   posts             Post[]
   vettingRequests   VettingRequest[]  @relation("VettingRequestAuthor")
@@ -72,38 +72,66 @@ model User {
   comments          Comment[]
   likes             Like[]
   reports           Report[]
-  
+  createdPersons    Person[]  @relation("PersonCreatedBy")
+
   @@index([email])
   @@index([username])
   @@index([phoneNumber])
+}
+
+model Person {
+  id                String    @id @default(uuid())
+  name              String
+  aliases           String[]  @default([])
+  approximateAge    Int?
+  gender            Gender?
+  city              String?
+  state             String?
+  country           String?   @default("USA")
+  profileImageUrl   String?
+  isVerified        Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  createdById       String?
+  createdBy         User?     @relation("PersonCreatedBy", fields: [createdById], references: [id])
+
+  posts             Post[]
+  vettingRequests   VettingRequest[]
+
+  @@index([name])
+  @@index([city, state])
 }
 
 model Post {
   id                String    @id @default(uuid())
   authorId          String
   author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  
+
   type              PostType
   title             String
   content           String    @db.Text
-  
-  // For experiences - person being dated
+
+  // Link to Person being reviewed
+  personId          String?
+  person            Person?   @relation(fields: [personId], references: [id])
+
+  // Legacy fields (deprecated - use Person relation)
   personName        String?
   personAge         Int?
   personGender      Gender?
   personLocation    String?
-  
+
   // Evidence/images stored in S3
   evidenceUrls      String[]  @default([])
-  
+
   isAnonymous       Boolean   @default(false)
   isPublished       Boolean   @default(true)
-  
+
   viewCount         Int       @default(0)
-  
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
-  
+
   // Relations
   vettingRequests   VettingRequest[]
   reviews           Review[]
@@ -111,37 +139,43 @@ model Post {
   likes             Like[]
   reports           Report[]
   tags              PostTag[]
-  
+
   @@index([authorId])
   @@index([type])
   @@index([createdAt])
+  @@index([personId])
 }
 
 model VettingRequest {
   id                String         @id @default(uuid())
   authorId          String
   author            User           @relation("VettingRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
-  
+
   targetUserId      String?
   targetUser        User?          @relation("VettingRequestTarget", fields: [targetUserId], references: [id])
-  
+
+  // Link to Person being vetted
+  targetPersonId    String?
+  targetPerson      Person?        @relation(fields: [targetPersonId], references: [id])
+
   postId            String?
   post              Post?          @relation(fields: [postId], references: [id])
-  
-  // Target person details (if not a user)
+
+  // Legacy target person details (deprecated - use Person relation)
   targetName        String
   targetAge         Int?
   targetGender      Gender?
   targetLocation    String?
   targetDescription String?       @db.Text
-  
+
   status            VettingStatus  @default(PENDING)
-  
+
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
-  
+
   @@index([authorId])
   @@index([targetUserId])
+  @@index([targetPersonId])
   @@index([status])
 }
 

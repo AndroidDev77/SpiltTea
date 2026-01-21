@@ -24,6 +24,18 @@ export class PostsService {
             profileImageUrl: true,
           },
         },
+        person: {
+          select: {
+            id: true,
+            name: true,
+            approximateAge: true,
+            gender: true,
+            city: true,
+            state: true,
+            profileImageUrl: true,
+            isVerified: true,
+          },
+        },
       },
     });
   }
@@ -56,6 +68,18 @@ export class PostsService {
               firstName: true,
               lastName: true,
               profileImageUrl: true,
+            },
+          },
+          person: {
+            select: {
+              id: true,
+              name: true,
+              approximateAge: true,
+              gender: true,
+              city: true,
+              state: true,
+              profileImageUrl: true,
+              isVerified: true,
             },
           },
           _count: {
@@ -91,6 +115,18 @@ export class PostsService {
             firstName: true,
             lastName: true,
             profileImageUrl: true,
+          },
+        },
+        person: {
+          select: {
+            id: true,
+            name: true,
+            approximateAge: true,
+            gender: true,
+            city: true,
+            state: true,
+            profileImageUrl: true,
+            isVerified: true,
           },
         },
         _count: {
