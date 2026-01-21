@@ -13,8 +13,21 @@ import type {
 export const postsApi = {
   // Posts
   getPosts: async (params?: PaginationParams & { category?: string; tags?: string[] }): Promise<PaginatedResponse<Post>> => {
-    const response = await axiosInstance.get<PaginatedResponse<Post>>('/posts', { params });
-    return response.data;
+    const response = await axiosInstance.get<{ posts: Post[]; total: number; page: number; totalPages: number }>('/posts', {
+      params: {
+        page: params?.page,
+        limit: params?.pageSize,
+        type: params?.category,
+      },
+    });
+    // Transform backend response to match frontend PaginatedResponse type
+    return {
+      data: response.data.posts,
+      total: response.data.total,
+      page: response.data.page,
+      pageSize: params?.pageSize || 20,
+      totalPages: response.data.totalPages,
+    };
   },
 
   getPost: async (id: string): Promise<Post> => {
