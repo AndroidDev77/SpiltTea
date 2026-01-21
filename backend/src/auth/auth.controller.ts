@@ -35,4 +35,10 @@ export class AuthController {
   async verifyPhone(@Request() req: any, @Body() verifyPhoneDto: VerifyPhoneDto) {
     return this.authService.verifyPhoneOtp(req.user.userId, verifyPhoneDto.otp);
   }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getCurrentUser(@Request() req: any) {
+    return this.authService.getCurrentUser(req.user.userId);
+  }
 }

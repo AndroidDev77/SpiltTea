@@ -55,7 +55,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginRequest) => {
     try {
       const response = await authApi.login(data);
-      apiClient.setAuthToken(response.token);
+      apiClient.setAuthToken(response.accessToken);
       setUser(response.user);
     } catch (error) {
       console.error('Login failed:', error);
@@ -66,7 +66,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const register = async (data: RegisterRequest) => {
     try {
       const response = await authApi.register(data);
-      apiClient.setAuthToken(response.token);
+      apiClient.setAuthToken(response.accessToken);
       setUser(response.user);
     } catch (error) {
       console.error('Registration failed:', error);

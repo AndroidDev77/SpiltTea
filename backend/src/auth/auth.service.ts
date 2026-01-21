@@ -151,4 +151,12 @@ export class AuthService {
 
     return { message: 'Phone verified successfully' };
   }
+
+  async getCurrentUser(userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    return user;
+  }
 }
