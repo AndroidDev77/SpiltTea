@@ -301,6 +301,13 @@ export const PersonSelector: React.FC<PersonSelectorProps> = ({
                       placeholder="State"
                     />
                   </Field>
+                  <Field label="Photo URL (optional)" className={styles.fullWidth}>
+                    <Input
+                      value={newPerson.profileImageUrl || ''}
+                      onChange={(e) => setNewPerson({ ...newPerson, profileImageUrl: e.target.value })}
+                      placeholder="https://example.com/photo.jpg"
+                    />
+                  </Field>
                 </div>
               </DialogContent>
               <DialogActions>

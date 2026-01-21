@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   makeStyles,
   shorthands,
@@ -54,9 +54,13 @@ const useStyles = makeStyles({
 export const CreatePost: React.FC = () => {
   const styles = useStyles();
   const navigate = useNavigate();
+  const location = useLocation();
   const createPost = useCreatePost();
   const [error, setError] = useState<string>('');
-  const [selectedPerson, setSelectedPerson] = useState<Person | null>(null);
+
+  // Get pre-selected person from navigation state (e.g., from PersonProfile page)
+  const preSelectedPerson = (location.state as { person?: Person } | null)?.person || null;
+  const [selectedPerson, setSelectedPerson] = useState<Person | null>(preSelectedPerson);
   const [formData, setFormData] = useState<CreatePostRequest>({
     type: 'EXPERIENCE',
     title: '',

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import {
   makeStyles,
   shorthands,
@@ -8,11 +8,13 @@ import {
   Text,
   Spinner,
   Badge,
+  Button,
 } from '@fluentui/react-components';
 import {
   Location24Regular,
   CheckmarkCircle24Filled,
   Person24Regular,
+  Edit24Regular,
 } from '@fluentui/react-icons';
 import { usePersonPosts } from '../../hooks/usePersons';
 
@@ -133,11 +135,23 @@ const useStyles = makeStyles({
     ...shorthands.padding('48px'),
     color: tokens.colorNeutralForeground3,
   },
+  headerActions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    marginTop: '16px',
+  },
+  reviewsHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '16px',
+  },
 });
 
 export const PersonProfile: React.FC = () => {
   const styles = useStyles();
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { data, isLoading, error } = usePersonPosts(id!);
 
   if (isLoading) {
@@ -215,6 +229,15 @@ export const PersonProfile: React.FC = () => {
               <Badge appearance="tint">{total} {total === 1 ? 'review' : 'reviews'}</Badge>
             </div>
           </div>
+        </div>
+        <div className={styles.headerActions}>
+          <Button
+            appearance="primary"
+            icon={<Edit24Regular />}
+            onClick={() => navigate('/posts/create', { state: { person } })}
+          >
+            Write Review
+          </Button>
         </div>
       </Card>
 
