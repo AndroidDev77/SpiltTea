@@ -1,0 +1,244 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum PostType {
+  EXPERIENCE
+  VETTING_REQUEST
+  WARNING
+}
+
+enum VettingStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id                String    @id @default(uuid())
+  email             String    @unique
+  emailVerified     Boolean   @default(false)
+  emailVerificationToken String?
+  passwordHash      String
+  phoneNumber       String?   @unique
+  phoneVerified     Boolean   @default(false)
+  phoneOtpSecret    String?
+  
+  firstName         String
+  lastName          String
+  username          String    @unique
+  bio               String?
+  dateOfBirth       DateTime
+  gender            Gender
+  
+  role              UserRole  @default(USER)
+  isActive          Boolean   @default(true)
+  isBanned          Boolean   @default(false)
+  banReason         String?
+  
+  profileImageUrl   String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  lastLoginAt       DateTime?
+  
+  // Relations
+  posts             Post[]
+  vettingRequests   VettingRequest[]  @relation("VettingRequestAuthor")
+  vettingsReceived  VettingRequest[]  @relation("VettingRequestTarget")
+  reviews           Review[]
+  comments          Comment[]
+  likes             Like[]
+  reports           Report[]
+  
+  @@index([email])
+  @@index([username])
+  @@index([phoneNumber])
+}
+
+model Post {
+  id                String    @id @default(uuid())
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  type              PostType
+  title             String
+  content           String    @db.Text
+  
+  // For experiences - person being dated
+  personName        String?
+  personAge         Int?
+  personGender      Gender?
+  personLocation    String?
+  
+  // Evidence/images stored in S3
+  evidenceUrls      String[]  @default([])
+  
+  isAnonymous       Boolean   @default(false)
+  isPublished       Boolean   @default(true)
+  
+  viewCount         Int       @default(0)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  vettingRequests   VettingRequest[]
+  reviews           Review[]
+  comments          Comment[]
+  likes             Like[]
+  reports           Report[]
+  tags              PostTag[]
+  
+  @@index([authorId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model VettingRequest {
+  id                String         @id @default(uuid())
+  authorId          String
+  author            User           @relation("VettingRequestAuthor", fields: [authorId], references: [id], onDelete: Cascade)
+  
+  targetUserId      String?
+  targetUser        User?          @relation("VettingRequestTarget", fields: [targetUserId], references: [id])
+  
+  postId            String?
+  post              Post?          @relation(fields: [postId], references: [id])
+  
+  // Target person details (if not a user)
+  targetName        String
+  targetAge         Int?
+  targetGender      Gender?
+  targetLocation    String?
+  targetDescription String?       @db.Text
+  
+  status            VettingStatus  @default(PENDING)
+  
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  
+  @@index([authorId])
+  @@index([targetUserId])
+  @@index([status])
+}
+
+model Review {
+  id                String    @id @default(uuid())
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  postId            String
+  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  rating            Int       // 1-5 stars
+  content           String    @db.Text
+  
+  isVerified        Boolean   @default(false)
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@unique([authorId, postId])
+  @@index([postId])
+  @@index([rating])
+}
+
+model Comment {
+  id                String    @id @default(uuid())
+  authorId          String
+  author            User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  postId            String
+  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  content           String    @db.Text
+  
+  parentId          String?
+  parent            Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies           Comment[] @relation("CommentReplies")
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Like {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  postId            String
+  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime  @default(now())
+  
+  @@unique([userId, postId])
+  @@index([postId])
+}
+
+model Tag {
+  id                String    @id @default(uuid())
+  name              String    @unique
+  description       String?
+  
+  posts             PostTag[]
+  
+  createdAt         DateTime  @default(now())
+}
+
+model PostTag {
+  postId            String
+  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  tagId             String
+  tag               Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@id([postId, tagId])
+  @@index([tagId])
+}
+
+model Report {
+  id                String    @id @default(uuid())
+  reporterId        String
+  reporter          User      @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  
+  postId            String
+  post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  reason            String
+  description       String?   @db.Text
+  
+  isResolved        Boolean   @default(false)
+  resolvedAt        DateTime?
+  
+  createdAt         DateTime  @default(now())
+  
+  @@index([postId])
+  @@index([reporterId])
+  @@index([isResolved])
+}
