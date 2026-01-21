@@ -27,6 +27,7 @@ import {
   CheckmarkCircle24Filled,
 } from '@fluentui/react-icons';
 import { useSearchPersons, useCreatePerson } from '../../hooks/usePersons';
+import { ImageUpload } from '../common/ImageUpload';
 import type { Person, Gender, CreatePersonRequest } from '../../types';
 
 const useStyles = makeStyles({
@@ -301,13 +302,13 @@ export const PersonSelector: React.FC<PersonSelectorProps> = ({
                       placeholder="State"
                     />
                   </Field>
-                  <Field label="Photo URL (optional)" className={styles.fullWidth}>
-                    <Input
-                      value={newPerson.profileImageUrl || ''}
-                      onChange={(e) => setNewPerson({ ...newPerson, profileImageUrl: e.target.value })}
-                      placeholder="https://example.com/photo.jpg"
+                  <div className={styles.fullWidth}>
+                    <ImageUpload
+                      label="Photo (optional)"
+                      value={newPerson.profileImageUrl}
+                      onChange={(url) => setNewPerson({ ...newPerson, profileImageUrl: url })}
                     />
-                  </Field>
+                  </div>
                 </div>
               </DialogContent>
               <DialogActions>

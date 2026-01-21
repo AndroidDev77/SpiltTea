@@ -1,24 +1,51 @@
 import { axiosInstance } from '../client';
-import type { FileUploadResponse } from '../../types';
+
+interface UploadUrlResponse {
+  uploadUrl: string;
+  key: string;
+  publicUrl: string;
+}
 
 export const storageApi = {
-  uploadFile: async (file: File): Promise<FileUploadResponse> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const response = await axiosInstance.post<FileUploadResponse>('/storage/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+  /**
+   * Get a presigned URL for uploading a file to S3
+   */
+  getUploadUrl: async (filename: string, contentType: string): Promise<UploadUrlResponse> => {
+    const response = await axiosInstance.post<UploadUrlResponse>('/storage/upload-url', {
+      filename,
+      contentType,
     });
     return response.data;
   },
 
-  deleteFile: async (fileId: string): Promise<void> => {
-    await axiosInstance.delete(`/storage/${fileId}`);
+  /**
+   * Upload a file to S3 using a presigned URL
+   * Returns the public URL of the uploaded file
+   */
+  uploadFile: async (file: File): Promise<string> => {
+    // 1. Get presigned upload URL
+    const { uploadUrl, publicUrl } = await storageApi.getUploadUrl(file.name, file.type);
+
+    // 2. Upload directly to S3
+    await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: {
+        'Content-Type': file.type,
+      },
+    });
+
+    // 3. Return the public URL
+    return publicUrl;
   },
 
-  getFileUrl: (fileId: string): string => {
-    return `${axiosInstance.defaults.baseURL}/storage/${fileId}`;
+  /**
+   * Get a presigned download URL for a file
+   */
+  getDownloadUrl: async (key: string, expiresIn?: number): Promise<string> => {
+    const response = await axiosInstance.get<{ downloadUrl: string }>('/storage/download-url', {
+      params: { key, expiresIn },
+    });
+    return response.data.downloadUrl;
   },
 };
