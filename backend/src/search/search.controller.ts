@@ -12,10 +12,35 @@ export class SearchController {
     @Query('limit') limit?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '10') || 10;
+    const limitNum = Math.min(parseInt(limit || '10') || 10, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.searchService.searchAll(query, skip, limitNum);
+  }
+
+  @Get('persons')
+  searchPersons(
+    @Query('q') query?: string,
+    @Query('name') name?: string,
+    @Query('phoneNumber') phoneNumber?: string,
+    @Query('city') city?: string,
+    @Query('state') state?: string,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const pageNum = parseInt(page || '1') || 1;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
+    const skip = (pageNum - 1) * limitNum;
+
+    return this.searchService.searchPersons({
+      query,
+      name,
+      phoneNumber,
+      city,
+      state,
+      skip,
+      take: limitNum,
+    });
   }
 
   @Get('posts')
@@ -25,7 +50,7 @@ export class SearchController {
     @Query('limit') limit?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.searchService.searchPosts(query, skip, limitNum);
@@ -38,7 +63,7 @@ export class SearchController {
     @Query('limit') limit?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.searchService.searchUsers(query, skip, limitNum);

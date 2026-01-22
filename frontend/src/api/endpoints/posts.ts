@@ -5,7 +5,6 @@ import type {
   UpdatePostRequest,
   Comment,
   CreateCommentRequest,
-  VoteRequest,
   PaginatedResponse,
   PaginationParams,
 } from '../../types';
@@ -64,14 +63,14 @@ export const postsApi = {
     await axiosInstance.delete(`/comments/${id}`);
   },
 
-  // Votes
-  vote: async (data: VoteRequest): Promise<{ message: string }> => {
-    const response = await axiosInstance.post('/votes', data);
+  // Voting
+  vote: async (postId: string, voteType: 'UPVOTE' | 'DOWNVOTE'): Promise<{ voteType: string | null; message: string }> => {
+    const response = await axiosInstance.post<{ voteType: string | null; message: string }>(`/posts/${postId}/vote`, { voteType });
     return response.data;
   },
 
-  removeVote: async (targetId: string, targetType: 'post' | 'comment'): Promise<{ message: string }> => {
-    const response = await axiosInstance.delete(`/votes/${targetId}`, { params: { targetType } });
+  getUserVote: async (postId: string): Promise<{ voteType: string | null }> => {
+    const response = await axiosInstance.get<{ voteType: string | null }>(`/posts/${postId}/vote`);
     return response.data;
   },
 };

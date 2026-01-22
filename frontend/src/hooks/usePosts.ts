@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { postsApi } from '../api';
-import type { CreatePostRequest, UpdatePostRequest, CreateCommentRequest, VoteRequest } from '../types';
+import type { CreatePostRequest, UpdatePostRequest, CreateCommentRequest } from '../types';
 
 export const usePosts = (params?: { page?: number; pageSize?: number; category?: string; tags?: string[] }) => {
   return useQuery({
@@ -72,18 +72,23 @@ export const useCreateComment = () => {
   });
 };
 
-export const useVote = () => {
+export const useVotePost = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: (data: VoteRequest) => postsApi.vote(data),
-    onSuccess: (_, variables) => {
-      if (variables.targetType === 'post') {
-        queryClient.invalidateQueries({ queryKey: ['post', variables.targetId] });
-        queryClient.invalidateQueries({ queryKey: ['posts'] });
-      } else {
-        queryClient.invalidateQueries({ queryKey: ['comments'] });
-      }
+    mutationFn: ({ postId, voteType }: { postId: string; voteType: 'UPVOTE' | 'DOWNVOTE' }) =>
+      postsApi.vote(postId, voteType),
+    onSuccess: (_, { postId }) => {
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
     },
+  });
+};
+
+export const useUserVote = (postId: string) => {
+  return useQuery({
+    queryKey: ['userVote', postId],
+    queryFn: () => postsApi.getUserVote(postId),
+    enabled: !!postId,
   });
 };

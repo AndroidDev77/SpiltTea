@@ -113,7 +113,7 @@ export const HomePage: React.FC = () => {
             </div>
           ) : (
             <div className={styles.postsGrid}>
-              {trendingPosts?.map((post: any) => (
+              {trendingPosts?.map((post) => (
                 <Card
                   key={post.id}
                   className={styles.postCard}

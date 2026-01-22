@@ -33,7 +33,7 @@ export class VettingController {
     @Query('targetUserId') targetUserId?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.vettingService.findAll({
@@ -52,7 +52,7 @@ export class VettingController {
     @Query('limit') limit?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.vettingService.searchByName(name, skip, limitNum);

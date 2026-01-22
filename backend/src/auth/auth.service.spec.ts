@@ -8,8 +8,6 @@ import { UnauthorizedException, BadRequestException } from '@nestjs/common';
 
 describe('AuthService', () => {
   let service: AuthService;
-  let usersService: UsersService;
-  let jwtService: JwtService;
 
   const mockUsersService = {
     findByEmail: jest.fn(),
@@ -50,8 +48,9 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
-    usersService = module.get<UsersService>(UsersService);
-    jwtService = module.get<JwtService>(JwtService);
+    // These are retrieved for potential future use but tests use mocks directly
+    void module.get<UsersService>(UsersService);
+    void module.get<JwtService>(JwtService);
   });
 
   afterEach(() => {
@@ -176,9 +175,7 @@ describe('AuthService', () => {
     it('should throw BadRequestException for invalid token', async () => {
       mockUsersService.findByVerificationToken.mockResolvedValue(null);
 
-      await expect(service.verifyEmail('invalid-token')).rejects.toThrow(
-        BadRequestException,
-      );
+      await expect(service.verifyEmail('invalid-token')).rejects.toThrow(BadRequestException);
     });
   });
 });

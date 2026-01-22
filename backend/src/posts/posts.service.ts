@@ -3,6 +3,7 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { PostType } from '@prisma/client';
+import { transformPostWithVoteCounts } from '../common/utils/transform-post';
 
 @Injectable()
 export class PostsService {
@@ -84,8 +85,13 @@ export class PostsService {
           },
           _count: {
             select: {
-              likes: true,
+              votes: true,
               comments: true,
+            },
+          },
+          votes: {
+            select: {
+              voteType: true,
             },
           },
         },
@@ -96,8 +102,11 @@ export class PostsService {
       this.prisma.post.count({ where }),
     ]);
 
+    // Transform posts to include upvotes and downvotes counts
+    const transformedPosts = posts.map(transformPostWithVoteCounts);
+
     return {
-      posts,
+      posts: transformedPosts,
       total,
       page: Math.floor(skip / take) + 1,
       totalPages: Math.ceil(total / take),
@@ -131,9 +140,14 @@ export class PostsService {
         },
         _count: {
           select: {
-            likes: true,
+            votes: true,
             comments: true,
             reviews: true,
+          },
+        },
+        votes: {
+          select: {
+            voteType: true,
           },
         },
       },
@@ -149,7 +163,8 @@ export class PostsService {
       data: { viewCount: { increment: 1 } },
     });
 
-    return post;
+    // Transform to include upvotes and downvotes
+    return transformPostWithVoteCounts(post);
   }
 
   async update(id: string, userId: string, updatePostDto: UpdatePostDto) {
@@ -202,7 +217,7 @@ export class PostsService {
     return { message: 'Post deleted successfully' };
   }
 
-  async likePost(postId: string, userId: string) {
+  async votePost(postId: string, userId: string, voteType: 'UPVOTE' | 'DOWNVOTE') {
     const post = await this.prisma.post.findUnique({
       where: { id: postId },
     });
@@ -211,7 +226,7 @@ export class PostsService {
       throw new NotFoundException('Post not found');
     }
 
-    const existingLike = await this.prisma.like.findUnique({
+    const existingVote = await this.prisma.vote.findUnique({
       where: {
         userId_postId: {
           userId,
@@ -220,26 +235,53 @@ export class PostsService {
       },
     });
 
-    if (existingLike) {
-      // Unlike
-      await this.prisma.like.delete({
-        where: {
-          userId_postId: {
-            userId,
-            postId,
+    if (existingVote) {
+      if (existingVote.voteType === voteType) {
+        // Same vote type - remove the vote (toggle off)
+        await this.prisma.vote.delete({
+          where: {
+            userId_postId: {
+              userId,
+              postId,
+            },
           },
-        },
-      });
-      return { liked: false };
+        });
+        return { voteType: null, message: 'Vote removed' };
+      } else {
+        // Different vote type - update the vote
+        await this.prisma.vote.update({
+          where: {
+            userId_postId: {
+              userId,
+              postId,
+            },
+          },
+          data: { voteType },
+        });
+        return { voteType, message: 'Vote updated' };
+      }
     } else {
-      // Like
-      await this.prisma.like.create({
+      // No existing vote - create new vote
+      await this.prisma.vote.create({
         data: {
           userId,
           postId,
+          voteType,
         },
       });
-      return { liked: true };
+      return { voteType, message: 'Vote created' };
     }
+  }
+
+  async getUserVote(postId: string, userId: string) {
+    const vote = await this.prisma.vote.findUnique({
+      where: {
+        userId_postId: {
+          userId,
+          postId,
+        },
+      },
+    });
+    return { voteType: vote?.voteType || null };
   }
 }

@@ -5,16 +5,14 @@ import {
   shorthands,
   tokens,
   Card,
-  Text,
   Button,
   Input,
   Textarea,
   Field,
   MessageBar,
   MessageBarBody,
-  Select,
 } from '@fluentui/react-components';
-import { ArrowLeft24Regular } from '@fluentui/react-icons';
+import { ArrowLeft24Regular, Send24Regular } from '@fluentui/react-icons';
 import { useCreatePost } from '../../hooks/usePosts';
 import { PersonSelector } from '../../components/persons/PersonSelector';
 import type { CreatePostRequest, Person, PostType } from '../../types';
@@ -30,26 +28,140 @@ const useStyles = makeStyles({
   },
   backButton: {
     alignSelf: 'flex-start',
+    ...shorthands.borderRadius('8px'),
   },
   card: {
-    ...shorthands.padding('24px'),
+    ...shorthands.padding('0'),
+    ...shorthands.borderRadius('20px'),
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.08)',
+    ...shorthands.border('1px', 'solid', tokens.colorNeutralStroke2),
+    overflow: 'hidden',
+  },
+  cardHeader: {
+    ...shorthands.padding('28px', '32px'),
+    backgroundColor: tokens.colorNeutralBackground1,
+    ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
   },
   title: {
     fontSize: tokens.fontSizeBase600,
-    fontWeight: tokens.fontWeightSemibold,
-    marginBottom: '24px',
+    fontWeight: tokens.fontWeightBold,
+    color: tokens.colorNeutralForeground1,
+    margin: 0,
+    marginBottom: '8px',
+  },
+  subtitle: {
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorNeutralForeground3,
+    margin: 0,
+  },
+  cardBody: {
+    ...shorthands.padding('32px'),
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    ...shorthands.gap('16px'),
+    ...shorthands.gap('24px'),
   },
-  buttons: {
+  fieldGroup: {
     display: 'flex',
+    flexDirection: 'column',
+    ...shorthands.gap('8px'),
+  },
+  fieldLabel: {
+    fontSize: tokens.fontSizeBase300,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+  },
+  fieldDescription: {
+    fontSize: tokens.fontSizeBase200,
+    color: tokens.colorNeutralForeground3,
+    marginBottom: '8px',
+  },
+  postTypeOptions: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
     ...shorthands.gap('12px'),
     marginTop: '8px',
   },
+  postTypeOption: {
+    ...shorthands.padding('16px'),
+    ...shorthands.borderRadius('12px'),
+    ...shorthands.border('2px', 'solid', tokens.colorNeutralStroke2),
+    backgroundColor: tokens.colorNeutralBackground1,
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+    textAlign: 'center',
+    ':hover': {
+      ...shorthands.borderColor(tokens.colorNeutralStroke1),
+      backgroundColor: tokens.colorNeutralBackground1Hover,
+    },
+  },
+  postTypeOptionSelected: {
+    ...shorthands.borderColor(tokens.colorBrandStroke1),
+    backgroundColor: tokens.colorBrandBackground2,
+  },
+  postTypeIcon: {
+    fontSize: '24px',
+    marginBottom: '8px',
+  },
+  postTypeLabel: {
+    fontSize: tokens.fontSizeBase300,
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorNeutralForeground1,
+    marginBottom: '4px',
+  },
+  postTypeDescription: {
+    fontSize: tokens.fontSizeBase200,
+    color: tokens.colorNeutralForeground3,
+  },
+  input: {
+    ...shorthands.borderRadius('10px'),
+  },
+  textarea: {
+    ...shorthands.borderRadius('10px'),
+  },
+  errorMessage: {
+    ...shorthands.borderRadius('10px'),
+    marginBottom: '16px',
+  },
+  cardFooter: {
+    ...shorthands.padding('24px', '32px'),
+    backgroundColor: tokens.colorNeutralBackground3,
+    ...shorthands.borderTop('1px', 'solid', tokens.colorNeutralStroke2),
+    display: 'flex',
+    justifyContent: 'flex-end',
+    ...shorthands.gap('12px'),
+  },
+  submitButton: {
+    ...shorthands.borderRadius('10px'),
+    fontWeight: tokens.fontWeightSemibold,
+    ...shorthands.padding('10px', '24px'),
+  },
+  cancelButton: {
+    ...shorthands.borderRadius('10px'),
+  },
 });
+
+const postTypes = [
+  {
+    value: 'EXPERIENCE',
+    icon: '💬',
+    label: 'Experience',
+    description: 'Share your personal experience',
+  },
+  {
+    value: 'WARNING',
+    icon: '⚠️',
+    label: 'Warning',
+    description: 'Alert others about concerns',
+  },
+  {
+    value: 'VETTING_REQUEST',
+    icon: '🔍',
+    label: 'Vetting',
+    description: 'Request community verification',
+  },
+];
 
 export const CreatePost: React.FC = () => {
   const styles = useStyles();
@@ -58,7 +170,6 @@ export const CreatePost: React.FC = () => {
   const createPost = useCreatePost();
   const [error, setError] = useState<string>('');
 
-  // Get pre-selected person from navigation state (e.g., from PersonProfile page)
   const preSelectedPerson = (location.state as { person?: Person } | null)?.person || null;
   const [selectedPerson, setSelectedPerson] = useState<Person | null>(preSelectedPerson);
   const [formData, setFormData] = useState<CreatePostRequest>({
@@ -77,14 +188,25 @@ export const CreatePost: React.FC = () => {
       return;
     }
 
+    if (!formData.title.trim()) {
+      setError('Please enter a title');
+      return;
+    }
+
+    if (!formData.content.trim()) {
+      setError('Please enter content for your review');
+      return;
+    }
+
     try {
       const post = await createPost.mutateAsync({
         ...formData,
         personId: selectedPerson.id,
       });
       navigate(`/posts/${post.id}`);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to create post');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(error.response?.data?.message || 'Failed to create post');
     }
   };
 
@@ -94,8 +216,8 @@ export const CreatePost: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleTypeChange = (_: any, data: { value: string }) => {
-    setFormData((prev) => ({ ...prev, type: data.value as PostType }));
+  const handleTypeChange = (type: PostType) => {
+    setFormData((prev) => ({ ...prev, type }));
   };
 
   const handlePersonChange = (person: Person | null) => {
@@ -114,61 +236,90 @@ export const CreatePost: React.FC = () => {
       </Button>
 
       <Card className={styles.card}>
-        <Text className={styles.title}>Create New Post</Text>
+        <div className={styles.cardHeader}>
+          <h1 className={styles.title}>Create a New Post</h1>
+          <p className={styles.subtitle}>
+            Share your experience or warn others about someone in the community
+          </p>
+        </div>
 
-        {error && (
-          <MessageBar intent="error">
-            <MessageBarBody>{error}</MessageBarBody>
-          </MessageBar>
-        )}
+        <div className={styles.cardBody}>
+          {error && (
+            <MessageBar intent="error" className={styles.errorMessage}>
+              <MessageBarBody>{error}</MessageBarBody>
+            </MessageBar>
+          )}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <Field label="Post Type" required>
-            <Select value={formData.type} onChange={handleTypeChange}>
-              <option value="EXPERIENCE">Experience / Review</option>
-              <option value="WARNING">Warning</option>
-              <option value="VETTING_REQUEST">Vetting Request</option>
-            </Select>
-          </Field>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.fieldGroup}>
+              <span className={styles.fieldLabel}>Post Type</span>
+              <span className={styles.fieldDescription}>
+                Choose the type that best describes your post
+              </span>
+              <div className={styles.postTypeOptions}>
+                {postTypes.map((type) => (
+                  <div
+                    key={type.value}
+                    className={`${styles.postTypeOption} ${formData.type === type.value ? styles.postTypeOptionSelected : ''}`}
+                    onClick={() => handleTypeChange(type.value as PostType)}
+                  >
+                    <div className={styles.postTypeIcon}>{type.icon}</div>
+                    <div className={styles.postTypeLabel}>{type.label}</div>
+                    <div className={styles.postTypeDescription}>{type.description}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
 
-          <PersonSelector
-            label="Who is this about?"
-            value={selectedPerson}
-            onChange={handlePersonChange}
-          />
-
-          <Field label="Title" required>
-            <Input
-              value={formData.title}
-              onChange={handleChange('title')}
-              placeholder="Enter post title"
-              required
+            <PersonSelector
+              label="Who is this about?"
+              value={selectedPerson}
+              onChange={handlePersonChange}
             />
-          </Field>
 
-          <Field label="Content" required>
-            <Textarea
-              value={formData.content}
-              onChange={handleChange('content')}
-              placeholder="Share your experience..."
-              rows={10}
-              required
-            />
-          </Field>
+            <Field label="Title" required>
+              <Input
+                value={formData.title}
+                onChange={handleChange('title')}
+                placeholder="Give your post a clear, descriptive title"
+                required
+                size="large"
+                className={styles.input}
+              />
+            </Field>
 
-          <div className={styles.buttons}>
-            <Button
-              appearance="primary"
-              type="submit"
-              disabled={createPost.isPending}
-            >
-              {createPost.isPending ? 'Creating...' : 'Create Post'}
-            </Button>
-            <Button appearance="secondary" onClick={() => navigate('/posts')}>
-              Cancel
-            </Button>
-          </div>
-        </form>
+            <Field label="Content" required>
+              <Textarea
+                value={formData.content}
+                onChange={handleChange('content')}
+                placeholder="Share the details of your experience. Be specific and factual."
+                rows={8}
+                required
+                resize="vertical"
+                className={styles.textarea}
+              />
+            </Field>
+          </form>
+        </div>
+
+        <div className={styles.cardFooter}>
+          <Button
+            appearance="secondary"
+            onClick={() => navigate('/posts')}
+            className={styles.cancelButton}
+          >
+            Cancel
+          </Button>
+          <Button
+            appearance="primary"
+            icon={<Send24Regular />}
+            onClick={handleSubmit}
+            disabled={createPost.isPending}
+            className={styles.submitButton}
+          >
+            {createPost.isPending ? 'Creating...' : 'Publish Post'}
+          </Button>
+        </div>
       </Card>
     </div>
   );

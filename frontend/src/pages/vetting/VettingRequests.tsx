@@ -87,7 +87,7 @@ export const VettingRequests: React.FC = () => {
   const { data, isLoading } = useVettingRequests({ status: statusFilter });
 
   const getStatusBadge = (status: string) => {
-    const statusMap: Record<string, { appearance: any; text: string }> = {
+    const statusMap: Record<string, { appearance: 'filled' | 'tint' | 'outline'; text: string }> = {
       pending: { appearance: 'filled', text: 'Pending' },
       accepted: { appearance: 'tint', text: 'In Progress' },
       completed: { appearance: 'filled', text: 'Completed' },

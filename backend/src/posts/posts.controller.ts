@@ -13,6 +13,7 @@ import {
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { VotePostDto } from './dto/vote-post.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PostType } from '@prisma/client';
 
@@ -34,7 +35,7 @@ export class PostsController {
     @Query('authorId') authorId?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.postsService.findAll({
@@ -62,9 +63,15 @@ export class PostsController {
     return this.postsService.remove(id, req.user.userId);
   }
 
-  @Post(':id/like')
+  @Post(':id/vote')
   @UseGuards(JwtAuthGuard)
-  likePost(@Param('id') id: string, @Request() req: any) {
-    return this.postsService.likePost(id, req.user.userId);
+  votePost(@Param('id') id: string, @Request() req: any, @Body() votePostDto: VotePostDto) {
+    return this.postsService.votePost(id, req.user.userId, votePostDto.voteType);
+  }
+
+  @Get(':id/vote')
+  @UseGuards(JwtAuthGuard)
+  getUserVote(@Param('id') id: string, @Request() req: any) {
+    return this.postsService.getUserVote(id, req.user.userId);
   }
 }

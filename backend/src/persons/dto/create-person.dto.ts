@@ -7,6 +7,7 @@ import {
   IsArray,
   Min,
   Max,
+  Matches,
 } from 'class-validator';
 import { Gender } from '@prisma/client';
 
@@ -29,6 +30,13 @@ export class CreatePersonDto {
   @IsEnum(Gender)
   @IsOptional()
   gender?: Gender;
+
+  @IsString()
+  @Matches(/^[+]?[\d\s\-()]{7,20}$/, {
+    message: 'Phone number must be a valid format',
+  })
+  @IsOptional()
+  phoneNumber?: string;
 
   @IsString()
   @IsOptional()

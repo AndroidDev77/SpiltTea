@@ -7,23 +7,42 @@ const useStyles = makeStyles({
     display: 'flex',
     flexDirection: 'column',
     minHeight: '100vh',
-    backgroundColor: tokens.colorNeutralBackground2,
+    backgroundColor: tokens.colorNeutralBackground3,
   },
   main: {
     flex: 1,
-    ...shorthands.padding('24px'),
-    maxWidth: '1200px',
+    ...shorthands.padding('32px', '24px'),
+    maxWidth: '1280px',
     width: '100%',
     marginLeft: 'auto',
     marginRight: 'auto',
+    '@media (max-width: 768px)': {
+      ...shorthands.padding('16px'),
+    },
   },
   footer: {
-    ...shorthands.padding('16px', '24px'),
+    ...shorthands.padding('24px'),
     backgroundColor: tokens.colorNeutralBackground1,
-    ...shorthands.borderTop('1px', 'solid', tokens.colorNeutralStroke1),
+    ...shorthands.borderTop('1px', 'solid', tokens.colorNeutralStroke2),
     textAlign: 'center',
-    fontSize: tokens.fontSizeBase300,
-    color: tokens.colorNeutralForeground2,
+    fontSize: tokens.fontSizeBase200,
+    color: tokens.colorNeutralForeground3,
+  },
+  footerContent: {
+    maxWidth: '1280px',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...shorthands.gap('8px'),
+  },
+  footerLink: {
+    color: tokens.colorBrandForeground1,
+    textDecoration: 'none',
+    ':hover': {
+      textDecoration: 'underline',
+    },
   },
 });
 
@@ -39,7 +58,11 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Header />
       <main className={styles.main}>{children}</main>
       <footer className={styles.footer}>
-        © 2024 Spilt Tea. All rights reserved.
+        <div className={styles.footerContent}>
+          <span>© 2026 Spilt Tea</span>
+          <span>·</span>
+          <span>Share experiences, stay informed</span>
+        </div>
       </footer>
     </div>
   );

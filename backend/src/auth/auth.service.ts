@@ -110,12 +110,12 @@ export class AuthService {
   async sendVerificationEmail(email: string, token: string) {
     // TODO: Implement email sending with nodemailer
     const verificationUrl = `${this.configService.get('FRONTEND_URL')}/verify-email?token=${token}`;
-    
+
     // Development only - log to console
     if (this.configService.get('NODE_ENV') === 'development') {
       console.log(`[DEV] Verification URL for ${email}: ${verificationUrl}`);
     }
-    
+
     // In production, use nodemailer to send actual email
     // Example implementation:
     // await this.emailService.send({

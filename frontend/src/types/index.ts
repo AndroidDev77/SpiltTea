@@ -43,6 +43,7 @@ export interface Person {
   aliases: string[];
   approximateAge?: number;
   gender?: Gender;
+  phoneNumber?: string;
   city?: string;
   state?: string;
   country?: string;
@@ -60,6 +61,7 @@ export interface CreatePersonRequest {
   aliases?: string[];
   approximateAge?: number;
   gender?: Gender;
+  phoneNumber?: string;
   city?: string;
   state?: string;
   country?: string;
@@ -71,6 +73,7 @@ export interface UpdatePersonRequest {
   aliases?: string[];
   approximateAge?: number;
   gender?: Gender;
+  phoneNumber?: string;
   city?: string;
   state?: string;
   country?: string;
@@ -195,6 +198,23 @@ export interface SearchFilters {
   sortBy?: 'recent' | 'popular' | 'trending';
   dateFrom?: string;
   dateTo?: string;
+}
+
+export interface PersonSearchFilters {
+  query?: string;
+  name?: string;
+  phoneNumber?: string;
+  city?: string;
+  state?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface PersonSearchResult {
+  persons: Person[];
+  total: number;
+  page: number;
+  totalPages: number;
 }
 
 export interface SearchResult {

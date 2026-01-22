@@ -3,6 +3,7 @@ import { PrismaService } from '../common/prisma/prisma.service';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { UserRole } from '@prisma/client';
+import { transformPostWithVoteCounts } from '../common/utils/transform-post';
 
 @Injectable()
 export class PersonsService {
@@ -149,8 +150,13 @@ export class PersonsService {
           },
           _count: {
             select: {
-              likes: true,
+              votes: true,
               comments: true,
+            },
+          },
+          votes: {
+            select: {
+              voteType: true,
             },
           },
         },
@@ -166,9 +172,12 @@ export class PersonsService {
       }),
     ]);
 
+    // Transform posts to include upvotes and downvotes counts
+    const transformedPosts = posts.map(transformPostWithVoteCounts);
+
     return {
       person,
-      posts,
+      posts: transformedPosts,
       total,
       page: Math.floor(skip / take) + 1,
       totalPages: Math.ceil(total / take),

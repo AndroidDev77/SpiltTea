@@ -1,12 +1,20 @@
 import { useQuery } from '@tanstack/react-query';
 import { searchApi } from '../api';
-import type { SearchFilters } from '../types';
+import type { SearchFilters, PersonSearchFilters } from '../types';
 
 export const useSearch = (filters: SearchFilters) => {
   return useQuery({
     queryKey: ['search', filters],
     queryFn: () => searchApi.search(filters),
     enabled: !!filters.query || !!filters.category || (filters.tags && filters.tags.length > 0),
+  });
+};
+
+export const useSearchPersons = (filters: PersonSearchFilters) => {
+  return useQuery({
+    queryKey: ['searchPersons', filters],
+    queryFn: () => searchApi.searchPersons(filters),
+    enabled: !!(filters.query || filters.name || filters.phoneNumber || filters.city || filters.state),
   });
 };
 

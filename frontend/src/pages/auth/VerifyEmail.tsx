@@ -45,32 +45,36 @@ export const VerifyEmail: React.FC = () => {
   const styles = useStyles();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying');
-  const [message, setMessage] = useState<string>('');
+  const token = searchParams.get('token');
+
+  // Derive initial state from token presence
+  const [status, setStatus] = useState<'verifying' | 'success' | 'error'>(
+    token ? 'verifying' : 'error'
+  );
+  const [message, setMessage] = useState<string>(
+    token ? '' : 'Invalid verification link. Please check your email or request a new verification link.'
+  );
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    
-    if (!token) {
-      setStatus('error');
-      setMessage('Invalid verification link. Please check your email or request a new verification link.');
-      return;
-    }
+    if (!token) return;
 
-    verifyEmail(token);
-  }, [searchParams]);
+    const doVerifyEmail = async () => {
+      try {
+        const response = await authApi.verifyEmail({ token });
+        setStatus('success');
+        setMessage(response.message || 'Email verified successfully!');
+        setTimeout(() => navigate('/login'), 3000);
+      } catch (err: unknown) {
+        setStatus('error');
+        const errorMessage = err instanceof Error && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : 'Verification failed. Please try again.';
+        setMessage(errorMessage || 'Verification failed. Please try again.');
+      }
+    };
 
-  const verifyEmail = async (token: string) => {
-    try {
-      const response = await authApi.verifyEmail({ token });
-      setStatus('success');
-      setMessage(response.message || 'Email verified successfully!');
-      setTimeout(() => navigate('/login'), 3000);
-    } catch (err: any) {
-      setStatus('error');
-      setMessage(err.response?.data?.message || 'Verification failed. Please try again.');
-    }
-  };
+    doVerifyEmail();
+  }, [token, navigate]);
 
   return (
     <div className={styles.container}>

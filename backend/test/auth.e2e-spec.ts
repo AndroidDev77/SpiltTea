@@ -53,10 +53,7 @@ describe('AuthController (e2e)', () => {
 
   describe('/api/auth/login (POST)', () => {
     it('should require email and password', () => {
-      return request(app.getHttpServer())
-        .post('/api/auth/login')
-        .send({})
-        .expect(400);
+      return request(app.getHttpServer()).post('/api/auth/login').send({}).expect(400);
     });
 
     it('should return 401 for invalid credentials', () => {

@@ -26,13 +26,9 @@ export class PersonsController {
   }
 
   @Get('search')
-  search(
-    @Query('q') query: string,
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  search(@Query('q') query: string, @Query('page') page?: string, @Query('limit') limit?: string) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.personsService.search(query || '', skip, limitNum);
@@ -50,7 +46,7 @@ export class PersonsController {
     @Query('limit') limit?: string,
   ) {
     const pageNum = parseInt(page || '1') || 1;
-    const limitNum = parseInt(limit || '20') || 20;
+    const limitNum = Math.min(parseInt(limit || '20') || 20, 100);
     const skip = (pageNum - 1) * limitNum;
 
     return this.personsService.findPersonPosts(id, skip, limitNum);
@@ -58,11 +54,7 @@ export class PersonsController {
 
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
-  update(
-    @Param('id') id: string,
-    @Request() req: any,
-    @Body() updatePersonDto: UpdatePersonDto,
-  ) {
+  update(@Param('id') id: string, @Request() req: any, @Body() updatePersonDto: UpdatePersonDto) {
     return this.personsService.update(id, req.user.userId, req.user.role, updatePersonDto);
   }
 

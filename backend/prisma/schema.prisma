@@ -70,7 +70,7 @@ model User {
   vettingsReceived  VettingRequest[]  @relation("VettingRequestTarget")
   reviews           Review[]
   comments          Comment[]
-  likes             Like[]
+  votes             Vote[]
   reports           Report[]
   createdPersons    Person[]  @relation("PersonCreatedBy")
 
@@ -85,6 +85,7 @@ model Person {
   aliases           String[]  @default([])
   approximateAge    Int?
   gender            Gender?
+  phoneNumber       String?
   city              String?
   state             String?
   country           String?   @default("USA")
@@ -100,6 +101,7 @@ model Person {
 
   @@index([name])
   @@index([city, state])
+  @@index([phoneNumber])
 }
 
 model Post {
@@ -136,7 +138,7 @@ model Post {
   vettingRequests   VettingRequest[]
   reviews           Review[]
   comments          Comment[]
-  likes             Like[]
+  votes             Vote[]
   reports           Report[]
   tags              PostTag[]
 
@@ -221,18 +223,27 @@ model Comment {
   @@index([authorId])
 }
 
-model Like {
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
+model Vote {
   id                String    @id @default(uuid())
   userId            String
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   postId            String
   post              Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
-  
+
+  voteType          VoteType
+
   createdAt         DateTime  @default(now())
-  
+  updatedAt         DateTime  @updatedAt
+
   @@unique([userId, postId])
   @@index([postId])
+  @@index([voteType])
 }
 
 model Tag {

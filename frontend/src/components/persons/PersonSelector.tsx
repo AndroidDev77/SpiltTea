@@ -146,6 +146,7 @@ export const PersonSelector: React.FC<PersonSelectorProps> = ({
     aliases: [],
     approximateAge: undefined,
     gender: undefined,
+    phoneNumber: '',
     city: '',
     state: '',
     country: 'USA',
@@ -180,6 +181,7 @@ export const PersonSelector: React.FC<PersonSelectorProps> = ({
         aliases: [],
         approximateAge: undefined,
         gender: undefined,
+        phoneNumber: '',
         city: '',
         state: '',
         country: 'USA',
@@ -287,6 +289,14 @@ export const PersonSelector: React.FC<PersonSelectorProps> = ({
                       <option value="OTHER">Other</option>
                       <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
                     </Select>
+                  </Field>
+                  <Field label="Phone Number" className={styles.fullWidth}>
+                    <Input
+                      type="tel"
+                      value={newPerson.phoneNumber || ''}
+                      onChange={(e) => setNewPerson({ ...newPerson, phoneNumber: e.target.value })}
+                      placeholder="Phone number (private - for search only)"
+                    />
                   </Field>
                   <Field label="City">
                     <Input
