@@ -57,6 +57,7 @@ const useStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     ...shorthands.gap('10px'),
+    ...shorthands.padding('4px', '0', '4px', '4px'),
     transition: 'opacity 0.2s',
     ':hover': {
       opacity: 0.8,
