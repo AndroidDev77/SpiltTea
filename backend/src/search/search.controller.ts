@@ -62,4 +62,10 @@ export class SearchController {
 
     return this.searchService.searchUsers(query, skip, limitNum);
   }
+
+  @Get('trending')
+  getTrendingPosts(@Query('limit') limit?: string) {
+    const limitNum = Math.min(parseInt(limit || '10') || 10, 50);
+    return this.searchService.getTrendingPosts(limitNum);
+  }
 }

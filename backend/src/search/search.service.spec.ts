@@ -742,4 +742,189 @@ describe('SearchService', () => {
       expect(result.persons[0].phoneNumber).toBeNull();
     });
   });
+
+  describe('getTrendingPosts', () => {
+    const createMockPost = (overrides = {}) => ({
+      id: '1',
+      title: 'Test Post',
+      content: 'Test content',
+      authorId: 'author-1',
+      type: 'EXPERIENCE',
+      isPublished: true,
+      viewCount: 100,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      personId: null,
+      personName: null,
+      personAge: null,
+      personGender: null,
+      personLocation: null,
+      evidenceUrls: [],
+      isAnonymous: false,
+      author: {
+        id: 'author-1',
+        username: 'testuser',
+        firstName: 'Test',
+        lastName: 'User',
+        profileImageUrl: null,
+      },
+      person: null,
+      votes: [],
+      _count: { comments: 0 },
+      ...overrides,
+    });
+
+    it('should return trending posts sorted by score', async () => {
+      const now = new Date();
+      const mockPosts = [
+        createMockPost({
+          id: '1',
+          title: 'Low engagement post',
+          viewCount: 10,
+          votes: [],
+          _count: { comments: 0 },
+          createdAt: now,
+        }),
+        createMockPost({
+          id: '2',
+          title: 'High engagement post',
+          viewCount: 500,
+          votes: [
+            { voteType: 'UPVOTE' },
+            { voteType: 'UPVOTE' },
+            { voteType: 'UPVOTE' },
+          ],
+          _count: { comments: 10 },
+          createdAt: now,
+        }),
+        createMockPost({
+          id: '3',
+          title: 'Medium engagement post',
+          viewCount: 200,
+          votes: [{ voteType: 'UPVOTE' }],
+          _count: { comments: 5 },
+          createdAt: now,
+        }),
+      ];
+
+      mockPrismaService.post.findMany.mockResolvedValue(mockPosts);
+
+      const result = await service.getTrendingPosts(10);
+
+      // High engagement post should be first
+      expect(result[0].title).toBe('High engagement post');
+      expect(result[0].upvotes).toBe(3);
+      expect(result[0].downvotes).toBe(0);
+      expect(result[0].commentCount).toBe(10);
+    });
+
+    it('should limit results to specified number', async () => {
+      const mockPosts = Array.from({ length: 20 }, (_, i) =>
+        createMockPost({ id: `${i}`, title: `Post ${i}` }),
+      );
+
+      mockPrismaService.post.findMany.mockResolvedValue(mockPosts);
+
+      const result = await service.getTrendingPosts(5);
+
+      expect(result.length).toBe(5);
+    });
+
+    it('should include upvotes and downvotes counts', async () => {
+      const mockPost = createMockPost({
+        votes: [
+          { voteType: 'UPVOTE' },
+          { voteType: 'UPVOTE' },
+          { voteType: 'DOWNVOTE' },
+        ],
+      });
+
+      mockPrismaService.post.findMany.mockResolvedValue([mockPost]);
+
+      const result = await service.getTrendingPosts(10);
+
+      expect(result[0].upvotes).toBe(2);
+      expect(result[0].downvotes).toBe(1);
+    });
+
+    it('should not include votes array in response', async () => {
+      const mockPost = createMockPost({
+        votes: [{ voteType: 'UPVOTE' }],
+      });
+
+      mockPrismaService.post.findMany.mockResolvedValue([mockPost]);
+
+      const result = await service.getTrendingPosts(10);
+
+      expect(result[0]).not.toHaveProperty('votes');
+    });
+
+    it('should mask person phone number in trending posts', async () => {
+      const mockPost = createMockPost({
+        person: {
+          id: 'person-1',
+          name: 'Test Person',
+          phoneNumber: '5551234567',
+          city: 'Austin',
+        },
+      });
+
+      mockPrismaService.post.findMany.mockResolvedValue([mockPost]);
+
+      const result = await service.getTrendingPosts(10);
+
+      expect(result[0].person?.phoneNumber).toBe('******4567');
+    });
+
+    it('should handle empty results', async () => {
+      mockPrismaService.post.findMany.mockResolvedValue([]);
+
+      const result = await service.getTrendingPosts(10);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should give recency bonus to newer posts', async () => {
+      const now = new Date();
+      const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+      const mockPosts = [
+        createMockPost({
+          id: '1',
+          title: 'Old post with engagement',
+          viewCount: 100,
+          votes: [{ voteType: 'UPVOTE' }, { voteType: 'UPVOTE' }],
+          _count: { comments: 5 },
+          createdAt: oneWeekAgo,
+        }),
+        createMockPost({
+          id: '2',
+          title: 'New post with less engagement',
+          viewCount: 50,
+          votes: [{ voteType: 'UPVOTE' }],
+          _count: { comments: 2 },
+          createdAt: now,
+        }),
+      ];
+
+      mockPrismaService.post.findMany.mockResolvedValue(mockPosts);
+
+      const result = await service.getTrendingPosts(10);
+
+      // New post should rank higher due to recency bonus despite less engagement
+      expect(result[0].title).toBe('New post with less engagement');
+    });
+
+    it('should use default limit of 10', async () => {
+      const mockPosts = Array.from({ length: 15 }, (_, i) =>
+        createMockPost({ id: `${i}`, title: `Post ${i}` }),
+      );
+
+      mockPrismaService.post.findMany.mockResolvedValue(mockPosts);
+
+      const result = await service.getTrendingPosts();
+
+      expect(result.length).toBe(10);
+    });
+  });
 });

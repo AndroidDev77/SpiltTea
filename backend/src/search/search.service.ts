@@ -241,4 +241,84 @@ export class SearchService {
       },
     };
   }
+
+  async getTrendingPosts(limit = 10) {
+    // Get recent posts from the last 30 days with engagement data
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    const posts = await this.prisma.post.findMany({
+      where: {
+        isPublished: true,
+        createdAt: {
+          gte: thirtyDaysAgo,
+        },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            profileImageUrl: true,
+          },
+        },
+        person: true,
+        votes: {
+          select: {
+            voteType: true,
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+          },
+        },
+      },
+      take: 100, // Get more posts to calculate trending score
+    });
+
+    // Calculate trending score for each post
+    // Score = (upvotes - downvotes) * 2 + commentCount * 3 + viewCount + recencyBonus
+    const now = new Date();
+    const scoredPosts = posts.map((post) => {
+      const upvotes = post.votes.filter((v) => v.voteType === 'UPVOTE').length;
+      const downvotes = post.votes.filter((v) => v.voteType === 'DOWNVOTE').length;
+      const commentCount = post._count.comments;
+      const viewCount = post.viewCount || 0;
+
+      // Recency bonus: posts from today get +50, yesterday +40, etc. (decays over 7 days)
+      const ageInDays = Math.floor(
+        (now.getTime() - new Date(post.createdAt).getTime()) / (1000 * 60 * 60 * 24),
+      );
+      const recencyBonus = Math.max(0, 50 - ageInDays * 7);
+
+      const trendingScore =
+        (upvotes - downvotes) * 2 + commentCount * 3 + viewCount * 0.1 + recencyBonus;
+
+      return {
+        post,
+        upvotes,
+        downvotes,
+        trendingScore,
+      };
+    });
+
+    // Sort by trending score descending
+    scoredPosts.sort((a, b) => b.trendingScore - a.trendingScore);
+
+    // Return top posts with transformed data
+    return scoredPosts.slice(0, limit).map(({ post, upvotes, downvotes }) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { votes, person, ...postWithoutVotes } = post;
+      return {
+        ...postWithoutVotes,
+        upvotes,
+        downvotes,
+        commentCount: post._count.comments,
+        person: person ? transformPersonWithMaskedPhone(person) : null,
+      };
+    });
+  }
 }
