@@ -71,6 +71,8 @@ const useStyles = makeStyles({
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
+    lineHeight: 1.3,
+    paddingBottom: '2px',
   },
   nav: {
     display: 'flex',

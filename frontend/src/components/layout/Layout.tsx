@@ -21,11 +21,11 @@ const useStyles = makeStyles({
     },
   },
   footer: {
-    ...shorthands.padding('24px'),
+    ...shorthands.padding('12px', '24px'),
     backgroundColor: tokens.colorNeutralBackground1,
     ...shorthands.borderTop('1px', 'solid', tokens.colorNeutralStroke2),
     textAlign: 'center',
-    fontSize: tokens.fontSizeBase200,
+    fontSize: tokens.fontSizeBase100,
     color: tokens.colorNeutralForeground3,
   },
   footerContent: {
@@ -61,7 +61,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className={styles.footerContent}>
           <span>© 2026 Spilt Tea</span>
           <span>·</span>
-          <span>Share experiences, stay informed</span>
+          <span>Share your dating experiences. Look up who you're dating. Know before you go.</span>
         </div>
       </footer>
     </div>
