@@ -66,10 +66,7 @@ export const CreatePost: React.FC = () => {
     title: '',
     content: '',
     personId: undefined,
-    category: '',
-    tags: [],
   });
-  const [tagsInput, setTagsInput] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,16 +100,6 @@ export const CreatePost: React.FC = () => {
 
   const handlePersonChange = (person: Person | null) => {
     setSelectedPerson(person);
-  };
-
-  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setTagsInput(value);
-    const tags = value
-      .split(',')
-      .map((tag) => tag.trim())
-      .filter((tag) => tag.length > 0);
-    setFormData((prev) => ({ ...prev, tags }));
   };
 
   return (
@@ -156,23 +143,6 @@ export const CreatePost: React.FC = () => {
               onChange={handleChange('title')}
               placeholder="Enter post title"
               required
-            />
-          </Field>
-
-          <Field label="Category" required>
-            <Input
-              value={formData.category}
-              onChange={handleChange('category')}
-              placeholder="e.g., Dating, Professional, Social"
-              required
-            />
-          </Field>
-
-          <Field label="Tags" hint="Comma-separated tags">
-            <Input
-              value={tagsInput}
-              onChange={handleTagsChange}
-              placeholder="e.g., verified, recent, honest"
             />
           </Field>
 

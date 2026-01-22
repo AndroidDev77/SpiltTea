@@ -118,8 +118,7 @@ export interface CreatePostRequest {
   title: string;
   content: string;
   personId?: string;
-  category: string;
-  tags: string[];
+  isAnonymous?: boolean;
 }
 
 export interface UpdatePostRequest {
