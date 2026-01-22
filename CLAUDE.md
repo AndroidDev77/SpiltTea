@@ -98,3 +98,35 @@ Backend requires: `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, AWS S3 credentials,
 Frontend requires: `VITE_API_URL` (default: http://localhost:3001)
 
 See `.env.example` files in root, backend/, and frontend/ directories.
+
+## Custom Agents
+
+Use these specialized agents from `.claude/agents/` for specific tasks. Read the agent file before invoking to follow its methodology.
+
+| Agent | When to Use | File |
+|-------|-------------|------|
+| **planner** | Complex features, architectural changes, multi-step implementations | `.claude/agents/planner.md` |
+| **code-reviewer** | After writing/modifying code - review for quality, security, maintainability | `.claude/agents/code-reviewer.md` |
+| **security-reviewer** | Code handling user input, auth, API endpoints, sensitive data | `.claude/agents/security-reviewer.md` |
+| **tdd-guide** | New features, bug fixes, refactoring - enforces test-first methodology | `.claude/agents/tdd-guide.md` |
+| **architect** | System design, scalability decisions, technical trade-offs | `.claude/agents/architect.md` |
+| **build-error-resolver** | Build failures, TypeScript errors - minimal fixes to get green | `.claude/agents/build-error-resolver.md` |
+| **e2e-runner** | Playwright E2E tests, test journeys, flaky test management | `.claude/agents/e2e-runner.md` |
+| **refactor-cleaner** | Dead code removal, duplicate elimination, dependency cleanup | `.claude/agents/refactor-cleaner.md` |
+| **doc-updater** | Updating codemaps, READMEs, documentation | `.claude/agents/doc-updater.md` |
+
+### Agent Usage Pattern
+
+1. **Read the agent file first** to understand its methodology
+2. **Use proactively** - don't wait for user to ask
+3. **code-reviewer**: Run after ANY code changes
+4. **security-reviewer**: Run after auth, input handling, or API changes
+5. **tdd-guide**: Use for new features to enforce test-first development
+
+### Workflow Example
+
+```
+Feature Request → planner → tdd-guide → [implement] → code-reviewer → security-reviewer
+Build Failure → build-error-resolver
+Refactoring → refactor-cleaner → code-reviewer
+```
