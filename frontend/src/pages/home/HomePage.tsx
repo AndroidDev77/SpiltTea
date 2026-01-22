@@ -26,13 +26,17 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForegroundOnBrand,
   },
   heroTitle: {
+    display: 'block',
     fontSize: tokens.fontSizeHero900,
     fontWeight: tokens.fontWeightSemibold,
     marginBottom: '16px',
+    textAlign: 'center',
   },
   heroSubtitle: {
+    display: 'block',
     fontSize: tokens.fontSizeBase400,
     marginBottom: '24px',
+    textAlign: 'center',
   },
   heroButtons: {
     display: 'flex',
@@ -87,9 +91,9 @@ export const HomePage: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.hero}>
-        <Text className={styles.heroTitle}>Welcome to Spilt Tea</Text>
+        <Text className={styles.heroTitle}>Spill the Tea</Text>
         <Text className={styles.heroSubtitle}>
-          A community-driven platform for sharing and vetting information
+          Share your dating experiences. Look up who you're dating. Know before you go.
         </Text>
         {!isAuthenticated && (
           <div className={styles.heroButtons}>
