@@ -8,7 +8,6 @@ import {
   Text,
 } from '@fluentui/react-components';
 import {
-  Image24Regular,
   Dismiss24Regular,
   ArrowUpload24Regular,
 } from '@fluentui/react-icons';
