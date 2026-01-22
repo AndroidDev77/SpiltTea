@@ -69,6 +69,16 @@ const useStyles = makeStyles({
     fontWeight: tokens.fontWeightSemibold,
     marginBottom: '8px',
   },
+  postPreview: {
+    fontSize: tokens.fontSizeBase300,
+    color: tokens.colorNeutralForeground2,
+    marginBottom: '12px',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    lineHeight: '1.4',
+  },
   postMeta: {
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
@@ -81,6 +91,21 @@ const useStyles = makeStyles({
     ...shorthands.padding('48px'),
   },
 });
+
+// Get first sentence or truncate to ~120 chars for preview
+const getPreviewText = (content: string): string => {
+  if (!content) return '';
+  // Try to get first sentence
+  const firstSentenceMatch = content.match(/^[^.!?]*[.!?]/);
+  if (firstSentenceMatch && firstSentenceMatch[0].length <= 150) {
+    return firstSentenceMatch[0];
+  }
+  // Fall back to truncating at word boundary
+  if (content.length <= 120) return content;
+  const truncated = content.slice(0, 120);
+  const lastSpace = truncated.lastIndexOf(' ');
+  return (lastSpace > 80 ? truncated.slice(0, lastSpace) : truncated) + '...';
+};
 
 export const HomePage: React.FC = () => {
   const styles = useStyles();
@@ -124,6 +149,11 @@ export const HomePage: React.FC = () => {
                   onClick={() => navigate(`/posts/${post.id}`)}
                 >
                   <Text className={styles.postTitle}>{post.title}</Text>
+                  {post.content && (
+                    <Text className={styles.postPreview}>
+                      {getPreviewText(post.content)}
+                    </Text>
+                  )}
                   <div className={styles.postMeta}>
                     <span>👍 {post.upvotes}</span>
                     <span>💬 {post.commentCount}</span>
