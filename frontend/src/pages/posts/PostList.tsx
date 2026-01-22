@@ -9,9 +9,9 @@ import {
   Spinner,
   Badge,
 } from '@fluentui/react-components';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { usePosts } from '../../hooks/usePosts';
-import { Add24Regular } from '@fluentui/react-icons';
+import { Add24Regular, Person24Regular } from '@fluentui/react-icons';
 
 const useStyles = makeStyles({
   container: {
@@ -67,10 +67,37 @@ const useStyles = makeStyles({
     fontSize: tokens.fontSizeBase200,
     color: tokens.colorNeutralForeground2,
   },
-  postTags: {
+  personInfo: {
     display: 'flex',
+    alignItems: 'center',
     ...shorthands.gap('8px'),
-    marginTop: '8px',
+    marginBottom: '8px',
+  },
+  personAvatar: {
+    width: '24px',
+    height: '24px',
+    ...shorthands.borderRadius('50%'),
+    backgroundColor: tokens.colorNeutralBackground5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  personAvatarImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  personName: {
+    fontWeight: tokens.fontWeightSemibold,
+    color: tokens.colorBrandForeground1,
+    textDecoration: 'none',
+    ':hover': {
+      textDecoration: 'underline',
+    },
+  },
+  postType: {
+    marginLeft: 'auto',
   },
   loadingContainer: {
     display: 'flex',
@@ -84,10 +111,16 @@ const useStyles = makeStyles({
   },
 });
 
+const postTypeLabels: Record<string, string> = {
+  EXPERIENCE: 'Experience',
+  WARNING: 'Warning',
+  VETTING_REQUEST: 'Vetting Request',
+};
+
 export const PostList: React.FC = () => {
   const styles = useStyles();
   const navigate = useNavigate();
-  const { data, isLoading } = usePosts({ page: 1, pageSize: 10 });
+  const { data, isLoading } = usePosts({ page: 1, pageSize: 20 });
 
   if (isLoading) {
     return (
@@ -100,13 +133,13 @@ export const PostList: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <Text className={styles.title}>Posts</Text>
+        <Text className={styles.title}>Latest Posts</Text>
         <Button
           appearance="primary"
           icon={<Add24Regular />}
           onClick={() => navigate('/posts/create')}
         >
-          Create Post
+          Write Review
         </Button>
       </div>
 
@@ -119,37 +152,60 @@ export const PostList: React.FC = () => {
               onClick={() => navigate(`/posts/${post.id}`)}
             >
               <div className={styles.postHeader}>
-                <div>
+                <div style={{ flex: 1 }}>
+                  {post.person && (
+                    <div className={styles.personInfo}>
+                      <div className={styles.personAvatar}>
+                        {post.person.profileImageUrl ? (
+                          <img
+                            src={post.person.profileImageUrl}
+                            alt={post.person.name}
+                            className={styles.personAvatarImage}
+                          />
+                        ) : (
+                          <Person24Regular style={{ fontSize: '14px' }} />
+                        )}
+                      </div>
+                      <Link
+                        to={`/persons/${post.person.id}`}
+                        className={styles.personName}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {post.person.name}
+                      </Link>
+                      {post.person.isVerified && (
+                        <Badge appearance="filled" color="success" size="small">
+                          Verified
+                        </Badge>
+                      )}
+                    </div>
+                  )}
                   <Text className={styles.postTitle}>{post.title}</Text>
-                  <Badge appearance="outline">{post.category}</Badge>
                 </div>
+                <Badge
+                  appearance="outline"
+                  className={styles.postType}
+                  color={post.type === 'WARNING' ? 'danger' : 'informative'}
+                >
+                  {postTypeLabels[post.type] || post.type}
+                </Badge>
               </div>
-              
+
               <Text className={styles.postContent}>{post.content}</Text>
-              
-              {post.tags && post.tags.length > 0 && (
-                <div className={styles.postTags}>
-                  {post.tags.map((tag) => (
-                    <Badge key={tag} size="small" appearance="tint">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-              
+
               <div className={styles.postMeta}>
-                <span>👍 {post.upvotes}</span>
-                <span>👎 {post.downvotes}</span>
-                <span>💬 {post.commentCount}</span>
-                <span>👁 {post.viewCount}</span>
-                <span>By {post.author?.username || 'Unknown'}</span>
+                <span>{post._count?.likes || 0} likes</span>
+                <span>{post._count?.comments || 0} comments</span>
+                <span>{post.viewCount} views</span>
+                <span>By {post.author?.username || 'Anonymous'}</span>
+                <span>{new Date(post.createdAt).toLocaleDateString()}</span>
               </div>
             </Card>
           ))}
         </div>
       ) : (
         <div className={styles.emptyState}>
-          <Text>No posts yet. Be the first to create one!</Text>
+          <Text>No reviews yet. Be the first to write one!</Text>
         </div>
       )}
     </div>
