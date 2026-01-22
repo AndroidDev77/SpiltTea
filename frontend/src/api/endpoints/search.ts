@@ -1,5 +1,5 @@
 import { axiosInstance } from '../client';
-import type { SearchFilters, SearchResult, PersonSearchFilters, PersonSearchResult } from '../../types';
+import type { SearchFilters, SearchResult, PersonSearchFilters, PersonSearchResult, Post } from '../../types';
 
 export const searchApi = {
   search: async (filters: SearchFilters): Promise<SearchResult> => {
@@ -21,8 +21,8 @@ export const searchApi = {
     return response.data;
   },
 
-  getTrendingPosts: async (limit: number = 10) => {
-    const response = await axiosInstance.get('/search/trending', { params: { limit } });
+  getTrendingPosts: async (limit: number = 10): Promise<Post[]> => {
+    const response = await axiosInstance.get<Post[]>('/search/trending', { params: { limit } });
     return response.data;
   },
 

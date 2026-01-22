@@ -8,14 +8,11 @@ export class SearchController {
   @Get()
   searchAll(
     @Query('q') query: string,
-    @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
-    const pageNum = parseInt(page || '1') || 1;
     const limitNum = Math.min(parseInt(limit || '10') || 10, 100);
-    const skip = (pageNum - 1) * limitNum;
 
-    return this.searchService.searchAll(query, skip, limitNum);
+    return this.searchService.searchAll(query, limitNum);
   }
 
   @Get('persons')
