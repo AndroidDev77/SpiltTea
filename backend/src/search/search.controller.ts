@@ -6,10 +6,7 @@ export class SearchController {
   constructor(private readonly searchService: SearchService) {}
 
   @Get()
-  searchAll(
-    @Query('q') query: string,
-    @Query('limit') limit?: string,
-  ) {
+  searchAll(@Query('q') query: string, @Query('limit') limit?: string) {
     const limitNum = Math.min(parseInt(limit || '10') || 10, 100);
 
     return this.searchService.searchAll(query, limitNum);
