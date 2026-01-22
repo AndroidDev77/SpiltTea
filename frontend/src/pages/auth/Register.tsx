@@ -11,9 +11,11 @@ import {
   Field,
   MessageBar,
   MessageBarBody,
+  Dropdown,
+  Option,
 } from '@fluentui/react-components';
 import { useAuth } from '../../context/AuthContext';
-import type { RegisterRequest } from '../../types';
+import type { RegisterRequest, Gender } from '../../types';
 
 const useStyles = makeStyles({
   container: {
@@ -25,7 +27,7 @@ const useStyles = makeStyles({
   },
   card: {
     width: '100%',
-    maxWidth: '400px',
+    maxWidth: '500px',
     ...shorthands.padding('32px'),
   },
   title: {
@@ -64,6 +66,11 @@ export const Register: React.FC = () => {
     username: '',
     email: '',
     password: '',
+    firstName: '',
+    lastName: '',
+    dateOfBirth: '',
+    gender: 'PREFER_NOT_TO_SAY',
+    phoneNumber: '',
   });
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string>('');
@@ -81,7 +88,12 @@ export const Register: React.FC = () => {
     setIsLoading(true);
 
     try {
-      await register(formData);
+      // Remove phoneNumber if empty
+      const submitData = { ...formData };
+      if (!submitData.phoneNumber) {
+        delete submitData.phoneNumber;
+      }
+      await register(submitData);
       navigate('/verify-email');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
@@ -97,6 +109,12 @@ export const Register: React.FC = () => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
+  const handleGenderChange = (_: unknown, data: { optionValue?: string }) => {
+    if (data.optionValue) {
+      setFormData((prev) => ({ ...prev, gender: data.optionValue as Gender }));
+    }
+  };
+
   return (
     <div className={styles.container}>
       <Card className={styles.card}>
@@ -109,6 +127,24 @@ export const Register: React.FC = () => {
         )}
 
         <form onSubmit={handleSubmit} className={styles.form}>
+          <Field label="First Name" required>
+            <Input
+              type="text"
+              value={formData.firstName}
+              onChange={handleChange('firstName')}
+              required
+            />
+          </Field>
+
+          <Field label="Last Name" required>
+            <Input
+              type="text"
+              value={formData.lastName}
+              onChange={handleChange('lastName')}
+              required
+            />
+          </Field>
+
           <Field label="Username" required>
             <Input
               type="text"
@@ -124,6 +160,39 @@ export const Register: React.FC = () => {
               value={formData.email}
               onChange={handleChange('email')}
               required
+            />
+          </Field>
+
+          <Field label="Date of Birth" required>
+            <Input
+              type="date"
+              value={formData.dateOfBirth}
+              onChange={handleChange('dateOfBirth')}
+              required
+            />
+          </Field>
+
+          <Field label="Gender" required>
+            <Dropdown
+              value={formData.gender}
+              selectedOptions={[formData.gender]}
+              onOptionSelect={handleGenderChange}
+              placeholder="Select gender"
+            >
+              <Option value="MALE">Male</Option>
+              <Option value="FEMALE">Female</Option>
+              <Option value="NON_BINARY">Non-Binary</Option>
+              <Option value="OTHER">Other</Option>
+              <Option value="PREFER_NOT_TO_SAY">Prefer Not to Say</Option>
+            </Dropdown>
+          </Field>
+
+          <Field label="Phone Number (Optional)">
+            <Input
+              type="tel"
+              value={formData.phoneNumber}
+              onChange={handleChange('phoneNumber')}
+              placeholder="+1234567890"
             />
           </Field>
 

@@ -6,9 +6,15 @@ export interface User {
   username: string;
   email: string;
   emailVerified: boolean;
+  firstName?: string;
+  lastName?: string;
   role: UserRole;
   trust: number;
   bio?: string;
+  profileImageUrl?: string;
+  twitterHandle?: string;
+  igHandle?: string;
+  tiktokHandle?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -23,6 +29,11 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: Gender;
+  phoneNumber?: string;
 }
 
 export interface AuthResponse {
@@ -48,6 +59,9 @@ export interface Person {
   state?: string;
   country?: string;
   profileImageUrl?: string;
+  twitterHandle?: string;
+  igHandle?: string;
+  tiktokHandle?: string;
   isVerified: boolean;
   createdAt: string;
   updatedAt: string;
@@ -66,6 +80,9 @@ export interface CreatePersonRequest {
   state?: string;
   country?: string;
   profileImageUrl?: string;
+  twitterHandle?: string;
+  igHandle?: string;
+  tiktokHandle?: string;
 }
 
 export interface UpdatePersonRequest {
@@ -78,6 +95,9 @@ export interface UpdatePersonRequest {
   state?: string;
   country?: string;
   profileImageUrl?: string;
+  twitterHandle?: string;
+  igHandle?: string;
+  tiktokHandle?: string;
   isVerified?: boolean;
 }
 
@@ -206,6 +226,9 @@ export interface PersonSearchFilters {
   phoneNumber?: string;
   city?: string;
   state?: string;
+  twitterHandle?: string;
+  igHandle?: string;
+  tiktokHandle?: string;
   page?: number;
   limit?: number;
 }

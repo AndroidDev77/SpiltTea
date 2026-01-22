@@ -14,6 +14,9 @@ export const searchApi = {
     if (filters.phoneNumber) params.phoneNumber = filters.phoneNumber;
     if (filters.city) params.city = filters.city;
     if (filters.state) params.state = filters.state;
+    if (filters.twitterHandle) params.twitterHandle = filters.twitterHandle;
+    if (filters.igHandle) params.igHandle = filters.igHandle;
+    if (filters.tiktokHandle) params.tiktokHandle = filters.tiktokHandle;
     if (filters.page) params.page = filters.page;
     if (filters.limit) params.limit = filters.limit;
 

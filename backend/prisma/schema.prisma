@@ -60,6 +60,11 @@ model User {
 
   profileImageUrl   String?
 
+  // Social media handles
+  twitterHandle     String?
+  igHandle          String?
+  tiktokHandle      String?
+
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   lastLoginAt       DateTime?
@@ -90,6 +95,12 @@ model Person {
   state             String?
   country           String?   @default("USA")
   profileImageUrl   String?
+
+  // Social media handles
+  twitterHandle     String?
+  igHandle          String?
+  tiktokHandle      String?
+
   isVerified        Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

@@ -14,7 +14,16 @@ export const useSearchPersons = (filters: PersonSearchFilters) => {
   return useQuery({
     queryKey: ['searchPersons', filters],
     queryFn: () => searchApi.searchPersons(filters),
-    enabled: !!(filters.query || filters.name || filters.phoneNumber || filters.city || filters.state),
+    enabled: !!(
+      filters.query ||
+      filters.name ||
+      filters.phoneNumber ||
+      filters.city ||
+      filters.state ||
+      filters.twitterHandle ||
+      filters.igHandle ||
+      filters.tiktokHandle
+    ),
   });
 };
 

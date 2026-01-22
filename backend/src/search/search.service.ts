@@ -28,6 +28,9 @@ interface SearchPersonsParams {
   phoneNumber?: string;
   city?: string;
   state?: string;
+  twitterHandle?: string;
+  igHandle?: string;
+  tiktokHandle?: string;
   skip?: number;
   take?: number;
 }
@@ -37,18 +40,32 @@ export class SearchService {
   constructor(private prisma: PrismaService) {}
 
   async searchPersons(params: SearchPersonsParams) {
-    const { query, name, phoneNumber, city, state, skip = 0, take = 20 } = params;
+    const {
+      query,
+      name,
+      phoneNumber,
+      city,
+      state,
+      twitterHandle,
+      igHandle,
+      tiktokHandle,
+      skip = 0,
+      take = 20,
+    } = params;
 
     // Build the where clause based on provided filters
     const conditions: any[] = [];
 
-    // General query search (searches across name, aliases, city)
+    // General query search (searches across name, aliases, city, social media)
     if (query) {
       conditions.push({
         OR: [
           { name: { contains: query, mode: 'insensitive' } },
           { aliases: { has: query } },
           { city: { contains: query, mode: 'insensitive' } },
+          { twitterHandle: { contains: query, mode: 'insensitive' } },
+          { igHandle: { contains: query, mode: 'insensitive' } },
+          { tiktokHandle: { contains: query, mode: 'insensitive' } },
         ],
       });
     }
@@ -80,6 +97,27 @@ export class SearchService {
     if (state) {
       conditions.push({
         state: { contains: state, mode: 'insensitive' },
+      });
+    }
+
+    // Twitter handle filter
+    if (twitterHandle) {
+      conditions.push({
+        twitterHandle: { contains: twitterHandle, mode: 'insensitive' },
+      });
+    }
+
+    // Instagram handle filter
+    if (igHandle) {
+      conditions.push({
+        igHandle: { contains: igHandle, mode: 'insensitive' },
+      });
+    }
+
+    // TikTok handle filter
+    if (tiktokHandle) {
+      conditions.push({
+        tiktokHandle: { contains: tiktokHandle, mode: 'insensitive' },
       });
     }
 
@@ -192,6 +230,9 @@ export class SearchService {
             { username: { contains: query, mode: 'insensitive' } },
             { firstName: { contains: query, mode: 'insensitive' } },
             { lastName: { contains: query, mode: 'insensitive' } },
+            { twitterHandle: { contains: query, mode: 'insensitive' } },
+            { igHandle: { contains: query, mode: 'insensitive' } },
+            { tiktokHandle: { contains: query, mode: 'insensitive' } },
           ],
           isActive: true,
           isBanned: false,
@@ -203,6 +244,9 @@ export class SearchService {
           lastName: true,
           bio: true,
           profileImageUrl: true,
+          twitterHandle: true,
+          igHandle: true,
+          tiktokHandle: true,
           createdAt: true,
         },
         orderBy: {
@@ -215,6 +259,9 @@ export class SearchService {
             { username: { contains: query, mode: 'insensitive' } },
             { firstName: { contains: query, mode: 'insensitive' } },
             { lastName: { contains: query, mode: 'insensitive' } },
+            { twitterHandle: { contains: query, mode: 'insensitive' } },
+            { igHandle: { contains: query, mode: 'insensitive' } },
+            { tiktokHandle: { contains: query, mode: 'insensitive' } },
           ],
           isActive: true,
           isBanned: false,

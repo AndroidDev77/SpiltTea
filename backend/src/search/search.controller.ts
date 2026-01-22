@@ -19,6 +19,9 @@ export class SearchController {
     @Query('phoneNumber') phoneNumber?: string,
     @Query('city') city?: string,
     @Query('state') state?: string,
+    @Query('twitterHandle') twitterHandle?: string,
+    @Query('igHandle') igHandle?: string,
+    @Query('tiktokHandle') tiktokHandle?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -32,6 +35,9 @@ export class SearchController {
       phoneNumber,
       city,
       state,
+      twitterHandle,
+      igHandle,
+      tiktokHandle,
       skip,
       take: limitNum,
     });

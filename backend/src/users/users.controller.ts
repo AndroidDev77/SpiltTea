@@ -21,6 +21,9 @@ export class UsersController {
       lastName?: string;
       bio?: string;
       profileImageUrl?: string;
+      twitterHandle?: string;
+      igHandle?: string;
+      tiktokHandle?: string;
     },
   ) {
     return this.usersService.updateProfile(req.user.userId, updateData);
@@ -42,6 +45,9 @@ export class UsersController {
       lastName: user.lastName,
       bio: user.bio,
       profileImageUrl: user.profileImageUrl,
+      twitterHandle: user.twitterHandle,
+      igHandle: user.igHandle,
+      tiktokHandle: user.tiktokHandle,
       createdAt: user.createdAt,
     };
   }

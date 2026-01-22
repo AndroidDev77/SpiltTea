@@ -219,7 +219,7 @@ const useStyles = makeStyles({
 
 export const SearchPage: React.FC = () => {
   const styles = useStyles();
-  const [showFilters, setShowFilters] = useState(false);
+  const [showFilters, setShowFilters] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<PersonSearchFilters>({});
   const [activeFilters, setActiveFilters] = useState<PersonSearchFilters>({});
@@ -278,7 +278,7 @@ export const SearchPage: React.FC = () => {
       <div className={styles.header}>
         <Text className={styles.title}>Find People</Text>
         <Text className={styles.subtitle}>
-          Search for people by name, phone number, or location
+          Search for people by name, phone number, location, or social media handles
         </Text>
       </div>
 
@@ -348,6 +348,27 @@ export const SearchPage: React.FC = () => {
                   onChange={(e) => handleFilterChange('state', e.target.value)}
                 />
               </Field>
+              <Field label="Twitter Handle">
+                <Input
+                  placeholder="@username"
+                  value={filters.twitterHandle || ''}
+                  onChange={(e) => handleFilterChange('twitterHandle', e.target.value)}
+                />
+              </Field>
+              <Field label="Instagram Handle">
+                <Input
+                  placeholder="@username"
+                  value={filters.igHandle || ''}
+                  onChange={(e) => handleFilterChange('igHandle', e.target.value)}
+                />
+              </Field>
+              <Field label="TikTok Handle">
+                <Input
+                  placeholder="@username"
+                  value={filters.tiktokHandle || ''}
+                  onChange={(e) => handleFilterChange('tiktokHandle', e.target.value)}
+                />
+              </Field>
             </div>
           )}
 
@@ -408,6 +429,39 @@ export const SearchPage: React.FC = () => {
                     size="small"
                     icon={<Dismiss24Regular />}
                     onClick={() => handleRemoveFilter('state')}
+                  />
+                </span>
+              )}
+              {activeFilters.twitterHandle && (
+                <span className={styles.filterChip}>
+                  Twitter: {activeFilters.twitterHandle}
+                  <Button
+                    appearance="subtle"
+                    size="small"
+                    icon={<Dismiss24Regular />}
+                    onClick={() => handleRemoveFilter('twitterHandle')}
+                  />
+                </span>
+              )}
+              {activeFilters.igHandle && (
+                <span className={styles.filterChip}>
+                  Instagram: {activeFilters.igHandle}
+                  <Button
+                    appearance="subtle"
+                    size="small"
+                    icon={<Dismiss24Regular />}
+                    onClick={() => handleRemoveFilter('igHandle')}
+                  />
+                </span>
+              )}
+              {activeFilters.tiktokHandle && (
+                <span className={styles.filterChip}>
+                  TikTok: {activeFilters.tiktokHandle}
+                  <Button
+                    appearance="subtle"
+                    size="small"
+                    icon={<Dismiss24Regular />}
+                    onClick={() => handleRemoveFilter('tiktokHandle')}
                   />
                 </span>
               )}
@@ -497,7 +551,7 @@ export const SearchPage: React.FC = () => {
             <Text className={styles.emptyTitle}>No people found</Text>
             <Text className={styles.emptyText}>
               Try adjusting your search terms or filters. You can search by name,
-              phone number, city, or state.
+              phone number, city, state, or social media handles.
             </Text>
           </div>
         )

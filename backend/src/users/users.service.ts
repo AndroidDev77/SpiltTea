@@ -100,6 +100,9 @@ export class UsersService {
         isActive: true,
         isBanned: true,
         profileImageUrl: true,
+        twitterHandle: true,
+        igHandle: true,
+        tiktokHandle: true,
         createdAt: true,
         lastLoginAt: true,
       },
@@ -119,6 +122,9 @@ export class UsersService {
       lastName?: string;
       bio?: string;
       profileImageUrl?: string;
+      twitterHandle?: string;
+      igHandle?: string;
+      tiktokHandle?: string;
     },
   ) {
     return this.prisma.user.update({
@@ -132,6 +138,9 @@ export class UsersService {
         lastName: true,
         bio: true,
         profileImageUrl: true,
+        twitterHandle: true,
+        igHandle: true,
+        tiktokHandle: true,
         updatedAt: true,
       },
     });
