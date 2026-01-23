@@ -12,9 +12,6 @@ export interface User {
   trust: number;
   bio?: string;
   profileImageUrl?: string;
-  twitterHandle?: string;
-  igHandle?: string;
-  tiktokHandle?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -33,7 +30,6 @@ export interface RegisterRequest {
   lastName: string;
   dateOfBirth: string;
   gender: Gender;
-  phoneNumber?: string;
 }
 
 export interface AuthResponse {

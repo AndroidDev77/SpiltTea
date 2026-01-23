@@ -159,4 +159,57 @@ export class AuthService {
     }
     return user;
   }
+
+  async googleLogin(googleUser: any) {
+    const { email, firstName, lastName, profileImageUrl } = googleUser;
+
+    // Check if user exists
+    let user = await this.usersService.findByEmail(email);
+
+    if (!user) {
+      // Create new user from Google profile
+      const username = `${firstName.toLowerCase()}_${Date.now()}`;
+      // Google users don't need email verification and don't have a password
+      const randomPassword = randomBytes(32).toString('hex');
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+      // Default values for required fields
+      const defaultDate = new Date();
+      defaultDate.setFullYear(defaultDate.getFullYear() - 18); // Default to 18 years ago
+
+      user = await this.usersService.create({
+        email,
+        passwordHash, // They won't use this, but it's required
+        firstName,
+        lastName,
+        username,
+        dateOfBirth: defaultDate,
+        gender: 'PREFER_NOT_TO_SAY',
+        profileImageUrl,
+        emailVerificationToken: null, // Already verified via Google
+      });
+
+      // Auto-verify email for Google users
+      await this.usersService.verifyEmail(user.id);
+    }
+
+    // Generate JWT
+    const payload = { sub: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload);
+
+    // Update last login
+    await this.usersService.updateLastLogin(user.id);
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+      },
+    };
+  }
 }

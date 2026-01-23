@@ -10,6 +10,7 @@ import { AdminRoute } from './components/layout/AdminRoute';
 import { Login } from './pages/auth/Login';
 import { Register } from './pages/auth/Register';
 import { VerifyEmail } from './pages/auth/VerifyEmail';
+import { AuthCallback } from './pages/auth/AuthCallback';
 
 // Main Pages
 import { HomePage } from './pages/home/HomePage';
@@ -43,6 +44,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/verify-email" element={<VerifyEmail />} />
+                <Route path="/auth/callback" element={<AuthCallback />} />
 
                 {/* Protected Routes */}
                 <Route
